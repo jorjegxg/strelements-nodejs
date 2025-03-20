@@ -19,7 +19,8 @@ app.post('/exchange-code', async (req: Request, res: Response) => {
   //TODO: schimba
   // const REDIRECT_URI = 'www.site.com/callback';
   const REDIRECT_URI = process.env.FRONTEND_URL! + '/callback';
-  const TOKEN_URL = 'https://kick.com/oauth/token';
+  console.log('REDIRECT_URI:', REDIRECT_URI);
+  const TOKEN_URL = 'https://id.kick.com/oauth/token';
 
   try {
     const params = new URLSearchParams();
