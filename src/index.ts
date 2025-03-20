@@ -48,5 +48,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Backend server running on ${process.env.BACKEND_URL}`);
+  console.log(`Backend server running on port ${port}`);
 });
