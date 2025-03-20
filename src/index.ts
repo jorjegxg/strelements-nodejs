@@ -25,7 +25,7 @@ app.get('/exchange-code', async (req: Request, res: Response) => {
     const params = new URLSearchParams();
     params.append('code', authorizationCode);
     params.append('client_id', CLIENT_ID);
-    params.append('client_id', process.env.CLIENT_SECRET!);
+    params.append('client_secret', process.env.CLIENT_SECRET!);
     params.append('redirect_uri', REDIRECT_URI);
     params.append('grant_type', 'authorization_code');
     params.append('code_verifier', codeVerifier);
