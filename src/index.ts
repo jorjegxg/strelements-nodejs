@@ -8,6 +8,7 @@ import corsMiddleware from './middleware/cors';
 const app = express();
 app.use(corsMiddleware);
 app.use(bodyParser.json());
+const port = process.env.PORT || 3000;
 
 app.post('/exchange-code', async (req, res) => {
   const { authorizationCode, codeVerifier } = req.body;
@@ -44,6 +45,6 @@ app.get('/', (req, res) => {
   res.send('Saluut!');
 });
 
-app.listen(process.env.PORT, () => {
+app.listen(port, () => {
   console.log(`Backend server running on ${process.env.BACKEND_URL}`);
 });
