@@ -1,8 +1,7 @@
 require('dotenv').config();
-
 import axios from 'axios';
 import bodyParser from 'body-parser';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import corsMiddleware from './middleware/cors';
 
 const app = express();
@@ -10,7 +9,7 @@ app.use(corsMiddleware);
 app.use(bodyParser.json());
 const port = process.env.PORT || 3000;
 
-app.post('/exchange-code', async (req, res) => {
+app.post('/exchange-code', async (req: Request, res: Response) => {
   const { authorizationCode, codeVerifier } = req.body;
 
   const CLIENT_ID = process.env.CLIENT_ID!;
@@ -33,17 +32,17 @@ app.post('/exchange-code', async (req, res) => {
 
     res.json(response.data); // trimite access_token și restul datelor
   } catch (error: any) {
-    console.error('Error exchanging code:', error.response?.data || error.message);
+    console.error('Error exchanging code:', error.message);
     res.status(500).send('Error exchanging code');
   }
 });
 
 //test
-app.get('/test', (req, res) => {
+app.get('/test', (req: Request, res: Response) => {
   res.send('Hello world!');
 });
 
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
   res.send('Saluut!');
 });
 
