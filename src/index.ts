@@ -16,7 +16,7 @@ app.post('/exchange-code', async (req: Request, res: Response) => {
   //schimba
   //TODO: schimba
   // const REDIRECT_URI = 'www.site.com/callback';
-  const REDIRECT_URI = 'https://de-ce-o-iubim-pe-gabita.art';
+  const REDIRECT_URI = process.env.FRONTEND_URL! + '/callback';
   const TOKEN_URL = 'https://kick.com/oauth/token';
 
   try {
