@@ -7,6 +7,8 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-const corsMiddleware = cors(corsOptions);
+// const corsMiddleware = cors(corsOptions);
+const corsMiddleware = cors();
+
 
 export default corsMiddleware;
