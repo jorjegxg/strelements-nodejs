@@ -14,8 +14,10 @@ app.post('/exchange-code', async (req, res) => {
   const { authorizationCode, codeVerifier } = req.body;
 
   const CLIENT_ID = process.env.CLIENT_ID!;
-  const REDIRECT_URI = process.env.REDIRECT_URI!;
-  const TOKEN_URL = process.env.TOKEN_URL!;
+  //schimba
+  // const REDIRECT_URI = 'www.site.com/callback';
+  const REDIRECT_URI = 'https://de-ce-o-iubim-pe-gabita.art';
+  const TOKEN_URL = 'https://kick.com/oauth/token';
 
   try {
     const params = new URLSearchParams();
