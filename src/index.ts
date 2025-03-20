@@ -9,7 +9,7 @@ app.use(corsMiddleware);
 app.use(bodyParser.json());
 const port = process.env.PORT || 3000;
 
-app.get('/exchange-code', async (req: Request, res: Response) => {
+app.post('/exchange-code', async (req: Request, res: Response) => {
   const { authorizationCode, codeVerifier } = req.body;
 
   console.log('Received code and verifier:', req.body);
