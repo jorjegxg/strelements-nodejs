@@ -14,6 +14,7 @@ app.post('/exchange-code', async (req: Request, res: Response) => {
 
   const CLIENT_ID = process.env.CLIENT_ID!;
   //schimba
+  //TODO: schimba
   // const REDIRECT_URI = 'www.site.com/callback';
   const REDIRECT_URI = 'https://de-ce-o-iubim-pe-gabita.art';
   const TOKEN_URL = 'https://kick.com/oauth/token';
@@ -43,7 +44,7 @@ app.get('/test', (req: Request, res: Response) => {
 });
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Saluut!');
+  res.json({ message: 'Root!' });
 });
 
 app.listen(port, () => {
