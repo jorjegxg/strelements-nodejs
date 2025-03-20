@@ -9,8 +9,10 @@ app.use(corsMiddleware);
 app.use(bodyParser.json());
 const port = process.env.PORT || 3000;
 
-app.post('/exchange-code', async (req: Request, res: Response) => {
+app.get('/exchange-code', async (req: Request, res: Response) => {
   const { authorizationCode, codeVerifier } = req.body;
+
+  console.log('Received code and verifier:', req.body);
 
   const CLIENT_ID = process.env.CLIENT_ID!;
   //schimba
@@ -21,15 +23,17 @@ app.post('/exchange-code', async (req: Request, res: Response) => {
 
   try {
     const params = new URLSearchParams();
-    params.append('grant_type', 'authorization_code');
-    params.append('client_id', CLIENT_ID);
     params.append('code', authorizationCode);
+    params.append('client_id', CLIENT_ID);
     params.append('redirect_uri', REDIRECT_URI);
+    params.append('grant_type', 'authorization_code');
     params.append('code_verifier', codeVerifier);
 
     const response = await axios.post(TOKEN_URL, params, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
+
+    console.log(response);
 
     res.json(response.data); // trimite access_token și restul datelor
   } catch (error: any) {
