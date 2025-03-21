@@ -49,6 +49,40 @@ app.post('/exchange-code', async (req: Request, res: Response) => {
   }
 });
 
+
+app.post('/events/subscriptions', async (req: Request, res: Response) => {
+  const { accessToken } = req.body;
+
+  try {
+    const response = await axios.post(
+      'https://api.kick.com/public/v1/events/subscriptions',
+      {
+        events: [
+          {
+            name: 'chat.message.sent',
+            version: 1,
+          },
+        ],
+        method: 'webhook',
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+
+    console.log(response);
+
+    res.json(response.data);
+  } catch (error: any) {
+    console.error('Error subscribing to events:', error.message);
+    res.status(500).send('Error subscribing to events');
+  }
+});
+
 app.post('/webhook', (req, res) => {
   const event = req.body;
 
@@ -74,5 +108,5 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.listen(port, () => {
-  console.log(`Backend server running on port ${port}`);
+  console.log(`Backend server at http://localhost:${port}`);
 });
