@@ -4,7 +4,12 @@ import bodyParser from 'body-parser';
 import express, { Request, Response } from 'express';
 import corsMiddleware from './middleware/cors';
 
+import { Server } from 'socket.io';
+
+
 const app = express();
+const io = new Server();
+
 app.use(corsMiddleware);
 app.use(bodyParser.json());
 const port = process.env.PORT || 3000;
@@ -46,11 +51,19 @@ app.post('/exchange-code', async (req: Request, res: Response) => {
 
 app.post('/webhook', (req, res) => {
   const eventData = req.body;
-  console.log('Received webhook data:', eventData);
-
-  // Procesează datele evenimentului aici
-
+  if (eventData.event && eventData.event.name === 'chat.message.sent') {
+    const message = eventData.event.data.content;
+    const username = eventData.event.data.sender.username;
+    io.emit('chatMessage', { username, message });
+  }
   res.sendStatus(200);
+});
+
+io.on('connection', (socket) => {
+  console.log('A client connected');
+  socket.on('disconnect', () => {
+    console.log('A client disconnected');
+  });
 });
 
 
