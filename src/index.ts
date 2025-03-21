@@ -50,14 +50,15 @@ app.post('/exchange-code', async (req: Request, res: Response) => {
 });
 
 app.post('/webhook', (req, res) => {
-  const eventData = req.body;
-  if (eventData.event && eventData.event.name === 'chat.message.sent') {
-    const message = eventData.event.data.content;
-    const username = eventData.event.data.sender.username;
-    io.emit('chatMessage', { username, message });
-  }
-  res.sendStatus(200);
+  const event = req.body;
+
+  // Procesăm evenimentul primit de la Kick
+  console.log('Eveniment Kick primit:', event);
+
+  // Răspunde cu statusul 200 pentru a confirma recepția
+  res.status(200).send('Webhook primit cu succes');
 });
+
 
 io.on('connection', (socket) => {
   console.log('A client connected');
