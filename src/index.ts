@@ -44,10 +44,16 @@ app.post('/exchange-code', async (req: Request, res: Response) => {
   }
 });
 
-//test
-app.get('/test', (req: Request, res: Response) => {
-  res.send('Hello world!');
+app.post('/webhook', (req, res) => {
+  const eventData = req.body;
+  console.log('Received webhook data:', eventData);
+
+  // Procesează datele evenimentului aici
+
+  res.sendStatus(200);
 });
+
+
 
 app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'Root!' });
