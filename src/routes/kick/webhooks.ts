@@ -36,6 +36,16 @@ hooksRouter.post('/events/subscriptions', async (req: Request, res: Response) =>
     }
 });
   
+
+/**
+ * @swagger
+ * /kick/hooks/webhook:
+ * post:
+ * summary: Webhook endpoint
+ * responses:
+ * 200:
+ * description: Success
+ */
 hooksRouter.post('/webhook', (req, res) => {
     const event = req.body;
   
