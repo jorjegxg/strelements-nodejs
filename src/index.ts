@@ -1,7 +1,7 @@
 require('dotenv').config();
-import axios from 'axios';
 import bodyParser from 'body-parser';
 import express, { Request, Response } from 'express';
+import listEndpoints from 'express-list-endpoints';
 import corsMiddleware from './middleware/cors';
 import kickRouter from './routes/kick';
 
@@ -11,8 +11,8 @@ app.use(corsMiddleware);
 app.use(bodyParser.json());
 const port = process.env.PORT || 3000;
 
-app.use('/kick' , kickRouter);
-
+app.use('/kick', kickRouter);
+console.log(listEndpoints(app));
 
 app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'Root!' });
