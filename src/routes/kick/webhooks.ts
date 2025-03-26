@@ -7,7 +7,6 @@ var subcribeToEvents = async (accessToken: string) => {
     'https://api.kick.com/public/v1/events/subscriptions',
     {
       //TODO: trebuie sa fie dinamic aici
-
       events: [
         {
           name: 'chat.message.sent',
@@ -28,6 +27,18 @@ var subcribeToEvents = async (accessToken: string) => {
   return response.data;
 
 }
+
+//ruta pentru webhook subscription
+hooksRouter.post('/subscribe', async (req, res) => {
+  const { accessToken } = req.body;
+  try {
+    const response = await subcribeToEvents(accessToken);
+    res.json(response);
+  } catch (error: any) {
+    console.error('Error subscribing to events:', error.message);
+    res.status(500).send('Error subscribing to events');
+  }
+});
 
 
 hooksRouter.post('/webhook', (req, res) => {
