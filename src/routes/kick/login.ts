@@ -1,5 +1,6 @@
 import axios from "axios";
 import express, { Request, Response } from "express";
+import { subcribeToEvents } from "./webhooks";
 const loginRouter = express.Router();
 
 loginRouter.post('/exchange-code', async (req: Request, res: Response) => {
@@ -30,6 +31,8 @@ loginRouter.post('/exchange-code', async (req: Request, res: Response) => {
     });
 
     console.log('response' + ' ' + response.data);
+
+    await subcribeToEvents(response.data.access_token);
 
     res.json(response.data);
   } catch (error: any) {
