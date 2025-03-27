@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { subscribeToEvents } from "../services/hooksService";
 
-export const handleSubscribe = async (req: Request, res: Response) => {
+const handleSubscribe = async (req: Request, res: Response) => {
   const { accessToken } = req.body;
 
   //TODO: ZOD
@@ -17,7 +17,11 @@ export const handleSubscribe = async (req: Request, res: Response) => {
   }
 };
 
-export const handleWebhook = (req: Request, res: Response) => {
+
+const handleWebhook = (req: Request, res: Response) => {
   console.log("Eveniment Kick primit:", req.body);
   res.status(200).send("Webhook primit cu succes");
 };
+
+export { handleSubscribe, handleWebhook };
+

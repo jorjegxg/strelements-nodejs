@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { exchangeAuthCode } from '../services/authService';
 import { subscribeToEvents } from '../services/hooksService';
 
-const exchangeCode = async (req: Request, res: Response) => {
+const exchangeCode = async (req: Request, res) => {
   const { authorizationCode, codeVerifier } = req.body;
 
   //TODO: foloseste zod aici
