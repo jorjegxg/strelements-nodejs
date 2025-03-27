@@ -1,6 +1,6 @@
 import { Request } from 'express';
-import { subcribeToEvents } from '../routes/kick/webhooks';
 import { exchangeAuthCode } from '../services/authService';
+import { subscribeToEvents } from '../services/hooksService';
 
 const exchangeCode = async (req: Request, res) => {
   const { authorizationCode, codeVerifier } = req.body;
@@ -13,7 +13,7 @@ const exchangeCode = async (req: Request, res) => {
 
   try {
     const authData = await exchangeAuthCode(authorizationCode, codeVerifier);
-    await subcribeToEvents(authData.data.access_token);
+    await subscribeToEvents(authData.data.access_token);
 
     res.json(authData);
   } catch (error: any) {
