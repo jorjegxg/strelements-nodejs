@@ -1,9 +1,9 @@
-import express from 'express';
-import loginRouter from './login';
+import { Router } from 'express';
+import { exchangeCode } from '../../controllers/kickControllers';
 import { hooksRouter } from './webhooks';
-const kickRouter = express.Router();
+const kickRouter = Router();
 
-kickRouter.use('/login', loginRouter);
+kickRouter.post('/login/exchange-code', exchangeCode);
 kickRouter.use('/hooks', hooksRouter);
 
 export default kickRouter;
