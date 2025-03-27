@@ -5,6 +5,7 @@ import listEndpoints from 'express-list-endpoints';
 import corsMiddleware from './middleware/cors';
 import { requestLogger } from './middleware/logger';
 import kickRouter from './routes/kick';
+import { subscribeToEvents } from './services/hooksService';
 
 const app = express();
 
@@ -24,6 +25,37 @@ app.get('/', (req: Request, res: Response) => {
 app.listen(port, () => {
   console.log(`Backend server at http://localhost:${port}`);
 });
+
+app.post('/toggle', async (req: Request, res: Response) => {
+
+  const { isActive, accessToken } = req.body;
+
+  if (isActive === undefined) {
+    res.status(400).json({ message: 'Missing required parameter(isActive)' });
+    return;
+  }
+
+  if (accessToken === undefined) {
+    res.status(400).json({ message: 'Missing required parameter(accessToken)' });
+    return;
+  }
+
+  console.log('Received isActive:', isActive);
+  console.log('Received accessToken:', accessToken);
+
+
+  ///////////////
+
+  try {
+    const response = await subscribeToEvents(accessToken);
+    res.json(response);
+  } catch (error: any) {
+    res.status(500).json({ error: "Error subscribing to events" });
+  }
+  ///////////////
+});
+
+
 
 
 

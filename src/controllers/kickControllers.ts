@@ -1,8 +1,8 @@
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { exchangeAuthCode } from '../services/authService';
 import { subscribeToEvents } from '../services/hooksService';
 
-const exchangeCode = async (req: Request, res) => {
+const exchangeCode = async (req: Request, res: Response) => {
   const { authorizationCode, codeVerifier } = req.body;
 
   console.log("Eveniment Kick primit:", req.body);
@@ -20,7 +20,7 @@ const exchangeCode = async (req: Request, res) => {
     const authData = await exchangeAuthCode(authorizationCode, codeVerifier);
 
     console.log('Received auth data:', authData);
-    await subscribeToEvents(authData.data.access_token);
+    await subscribeToEvents(authData.access_token);
 
     console.log('Subscribed to events');
     res.json(authData);
