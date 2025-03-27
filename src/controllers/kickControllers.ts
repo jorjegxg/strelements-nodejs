@@ -1,14 +1,14 @@
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { exchangeAuthCode } from '../services/authService';
 import { subscribeToEvents } from '../services/hooksService';
 
-const exchangeCode = async (req: Request, res) => {
+const exchangeCode = async (req: Request, res: Response) => {
   const { authorizationCode, codeVerifier } = req.body;
 
   //TODO: foloseste zod aici
 
   if (!authorizationCode || !codeVerifier) {
-    return res.status(400).json({ error: 'Missing authorizationCode or codeVerifier' });
+    return res.status(400).send('Missing required parameters');
   }
 
   try {
