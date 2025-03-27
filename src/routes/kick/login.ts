@@ -15,17 +15,21 @@ loginRouter.post('/exchange-code', async (req: Request, res: Response) => {
   try {
     const params = new URLSearchParams();
     params.append('code', authorizationCode);
+
     params.append('client_id', CLIENT_ID);
     params.append('client_secret', process.env.CLIENT_SECRET!);
     params.append('redirect_uri', REDIRECT_URI);
     params.append('grant_type', 'authorization_code');
+
     params.append('code_verifier', codeVerifier);
+
+    console.log(params);
 
     const response = await axios.post(TOKEN_URL, params, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
 
-    console.log(response);
+    console.log('response' + ' ' + response.data);
 
     res.json(response.data);
   } catch (error: any) {
