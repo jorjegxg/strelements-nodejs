@@ -4,12 +4,12 @@ import { CONFIG } from "../config/config";
 async function exchangeAuthCode(authorizationCode: string, codeVerifier: string) {
 
   const params = new URLSearchParams({
-    code: authorizationCode,
     client_id: CONFIG.CLIENT_ID,
     client_secret: CONFIG.CLIENT_SECRET,
     redirect_uri: CONFIG.FRONTEND_URL + '/callback',
     grant_type: 'authorization_code',
     code_verifier: codeVerifier,
+    code: authorizationCode,
   });
 
 
@@ -24,7 +24,7 @@ async function exchangeAuthCode(authorizationCode: string, codeVerifier: string)
     console.log('Received auth data:', response.data);
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.error_description || 'Failed to exchange authorization code');
+    throw new Error(error.response?.data?.error_description || 'Failed to exchange authorization code' + error);
   }
 }
 
