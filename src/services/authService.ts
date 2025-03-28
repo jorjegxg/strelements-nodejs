@@ -16,14 +16,7 @@ async function exchangeAuthCode(authorizationCode: string, codeVerifier: string)
   try {
     console.log('Received authorization code:', authorizationCode);
 
-    const response = await axios.post(CONFIG.KICK_AUTH_URL, {
-      client_id: CONFIG.CLIENT_ID,
-      client_secret: CONFIG.CLIENT_SECRET,
-      redirect_uri: CONFIG.FRONTEND_URL + '/callback',
-      grant_type: 'authorization_code',
-      code_verifier: codeVerifier,
-      code: authorizationCode,
-    }, {
+    const response = await axios.post(CONFIG.KICK_AUTH_URL, params, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       }
