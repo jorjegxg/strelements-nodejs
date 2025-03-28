@@ -8,7 +8,7 @@ const exchangeCode = async (req: Request, res) => {
   //TODO: foloseste zod aici
 
   if (!authorizationCode || !codeVerifier) {
-    return res.status(400).json({ error: 'Missing authorizationCode or codeVerifier' });
+    res.status(400).json({ error: 'Missing authorizationCode or codeVerifier' });
   }
 
   try {

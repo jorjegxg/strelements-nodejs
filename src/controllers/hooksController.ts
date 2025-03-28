@@ -1,18 +1,23 @@
 import { Request, Response } from "express";
-import { subscribeToEvents } from "../services/hooksService";
+import { subscribeToEvents, unsubscribeFromEvents } from "../services/hooksService";
 
 export const handleSubscribe = async (req: Request, res: Response) => {
-  const { accessToken } = req.body;
+  const { accessToken, isActive } = req.body;
+  let data = null;
 
-  //TODO: ZOD
-  if (!accessToken) {
-    return res.status(400).json({ error: "Missing accessToken" });
-  }
+  console.log("accessToken:", accessToken);
+  console.log("isActive:", isActive);
 
   try {
-    const response = await subscribeToEvents(accessToken);
-    res.json(response);
+    if (isActive === true) {
+      data = await unsubscribeFromEvents(accessToken);
+    } else {
+      data = await subscribeToEvents(accessToken);
+    }
+
+    res.json(data);
   } catch (error: any) {
+    console.error("Error subscribing to events:", error);
     res.status(500).json({ error: "Error subscribing to events" });
   }
 };
