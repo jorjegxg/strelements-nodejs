@@ -32,7 +32,7 @@ async function exchangeAuthCode(authorizationCode: string, codeVerifier: string)
     console.log('Received auth data:', response);
     return response.data;
 
-  } catch (error) {
+  } catch (error: any) {
     throw new Error(error.response?.data?.error_description || 'Failed to exchange authorization code' + error);
   }
 }
