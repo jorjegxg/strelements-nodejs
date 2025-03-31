@@ -10,7 +10,7 @@ const exchangeCode = async (req: Request, res: Response) => {
   //TODO: foloseste zod aici
 
   if (!authorizationCode || !codeVerifier) {
-    res.status(400).send('Missing required parameters');
+    res.status(400).json({ error: 'Missing authorizationCode or codeVerifier' });
   }
 
   console.log('Received authorization code:', authorizationCode);
