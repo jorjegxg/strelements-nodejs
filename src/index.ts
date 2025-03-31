@@ -8,7 +8,7 @@ import { requestLogger } from './middleware/logger';
 import { validateRequest } from './middleware/validation';
 import { toggleRequestBodySchema } from './models/toogleRequestSchema';
 import kickRouter from './routes/kick';
-import { subscribeToEvents } from './services/hooksService';
+import { subscribeToEvents, unsubscribeFromEvents } from './services/hooksService';
 
 const app = express();
 
@@ -54,8 +54,13 @@ app.post('/toggle', async (req: Request, res: Response) => {
   ///////////////
 
   try {
-    const response = await subscribeToEvents(accessToken);
-    res.json(response);
+    if (isActive === true) {
+      const response = await unsubscribeFromEvents(accessToken);
+      res.json(response);
+    } else {
+      const response = await subscribeToEvents(accessToken);
+      res.json(response);
+    }
   } catch (error: any) {
     res.status(500).json({ error: "Error subscribing to events" });
   }

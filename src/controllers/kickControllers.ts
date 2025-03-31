@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { exchangeAuthCode } from '../services/authService';
-import { subscribeToEvents } from '../services/hooksService';
 
 const exchangeCode = async (req: Request, res: Response) => {
   const { authorizationCode, codeVerifier } = req.body;
@@ -18,12 +17,7 @@ const exchangeCode = async (req: Request, res: Response) => {
 
   try {
     const authData = await exchangeAuthCode(authorizationCode, codeVerifier);
-
-    console.log('Received auth data:', authData);
-    await subscribeToEvents(authData.access_token);
-
-    console.log('Subscribed to events');
-    res.json(authData);
+    res.status(200).json(authData);
   } catch (error: any) {
     console.error('Error exchanging code:', error.message);
     res.status(500).send(error.message);

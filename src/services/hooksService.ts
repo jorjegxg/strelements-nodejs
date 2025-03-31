@@ -2,27 +2,33 @@ import axios from "axios";
 
 const subscribeToEvents = async (accessToken: string) => {
   console.log("subscribeToEvents");
+  console.log('accessToken:------------', accessToken);
+
+  const body = {
+    events: [
+      {
+        name: "chat.message.sent",
+        version: 1,
+      },
+    ],
+    method: "webhook",
+  };
+
+  console.log(body);
 
   try {
     const response = await axios.post(
       "https://api.kick.com/public/v1/events/subscriptions",
-      {
-        //TODO: fa dinamic
-        events: [
-          {
-            name: "chat.message.sent",
-            version: 1,
-          },
-        ],
-        method: "webhook",
-      },
+      body,
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       }
     );
+
+    console.log(response.data);
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.error_description || "Failed to subscribe to events");
@@ -35,13 +41,15 @@ const unsubscribeFromEvents = async (accessToken: string) => {
 
     const subscriptions = await getSubscriptions(accessToken);
 
+    console.log(subscriptions);
+
     for (const index in subscriptions.data) {
 
       await axios.delete(
         `https://api.kick.com/public/v1/events/subscriptions?id=${subscriptions.data[index].id}`,
         {
           headers: {
-            Authorization: `${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         },
       );
@@ -56,19 +64,23 @@ const unsubscribeFromEvents = async (accessToken: string) => {
 };
 
 const getSubscriptions = async (accessToken: string) => {
+  console.log("getSubscriptions");
+  console.log('accessToken:------------', accessToken);
   try {
     const response = await axios.get(
       "https://api.kick.com/public/v1/events/subscriptions",
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
     );
+
+    console.log('response.data:------------', response.data);
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.error_description || "Failed to get subscriptions");
+    throw new Error(error.response?.data?.error_description || `Failed to get subscriptions ${error}`);
   }
 };
 

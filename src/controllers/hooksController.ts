@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { subscribeToEvents, unsubscribeFromEvents } from "../services/hooksService";
 
 const handleSubscribe = async (req: Request, res: Response) => {
+  console.log("HandleSubscribe");
   const { accessToken, isActive } = req.body;
   let data = null;
 
