@@ -16,31 +16,6 @@ import { instrument } from "@socket.io/admin-ui";
 
 const app = express();
 const server = createServer(app); // Folosim serverul Express
-const io = new Server(server, {
-  cors: {
-    origin: [CONFIG.FRONTEND_URL, "https://admin.socket.io"],
-    methods: ["GET", "POST"],
-  },
-});
-
-instrument(io, {
-  auth: false,
-});
-
-///////////////////////////////////////////////////////////////////////////////
-
-io.on("connection", (socket) => {
-  console.log("Client connected");
-
-  socket.on("message", (message) => {
-    console.log("Received message:", message);
-    io.emit("message", message); // Trimite mesajul către toți clienții
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Client disconnected");
-  });
-});
 
 const PORT = CONFIG.PORT; // Folosim CONFIG.PORT
 server.listen(PORT, () => {
@@ -63,7 +38,7 @@ app.post(
   validateRequest(exchangeCodeSchema),
   exchangeCode
 );
-app.post("/kick/hooks", (req, res) => handleWebhook(req, res, io));
+// app.post("/kick/hooks", (req, res) => handleWebhook(req, res, io));
 
 app.post("/toggle", validateRequest(toggleRequestBodySchema), handleSubscribe);
 
