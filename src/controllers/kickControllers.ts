@@ -23,7 +23,7 @@ const exchangeCode = async (req: Request, res: Response) => {
     };
 
     //TODO: vezi daca e bine pus aici sau trebuie schimbat locul
-    await subscribeToEvents(authData.access_token);
+    // await subscribeToEvents(authData.access_token);
 
     console.log("response", response);
 
