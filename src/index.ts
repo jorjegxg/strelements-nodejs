@@ -12,15 +12,21 @@ import { validateRequest } from "./middleware/validation";
 import { exchangeCodeSchema } from "./models/exchangeCodeSchema";
 import { toggleRequestBodySchema } from "./models/toogleRequestSchema";
 import { CONFIG } from "./config/config";
+import { instrument } from "@socket.io/admin-ui";
 
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: CONFIG.FRONTEND_URL,
+    origin: [CONFIG.FRONTEND_URL, "https://admin.socket.io"],
     methods: ["GET", "POST"],
   },
 });
+
+instrument(io, {
+  auth: false
+});
+
 ///////////////////////////////////////////////////////////////////////////////
 
 io.on("connection", (socket) => {
