@@ -10,6 +10,8 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
+console.log('Cors -----------------------------------: ' , CONFIG.FRONTEND_URL )
+
 const corsMiddleware = cors(corsOptions);
 
 export default corsMiddleware;
