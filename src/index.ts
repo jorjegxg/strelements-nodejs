@@ -11,6 +11,7 @@ import { requestLogger } from "./middleware/logger";
 import { validateRequest } from "./middleware/validation";
 import { exchangeCodeSchema } from "./models/exchangeCodeSchema";
 import { toggleRequestBodySchema } from "./models/toogleRequestSchema";
+import { CONFIG } from "./config/config";
 
 const app = express();
 const server = createServer(app);
@@ -47,14 +48,15 @@ server.listen(PORT, () => {
 
 app.use(corsMiddleware);
 app.use(bodyParser.json());
-const port = process.env.PORT || 3000;
+const port = CONFIG.PORT;
 //////////////////////////////////////////
 app.post(
   "/kick/login/exchange-code",
   validateRequest(exchangeCodeSchema),
   exchangeCode
 );
-app.post("/kick/hooks", handleWebhook);
+app.post("/kick/hooks", (req, res) => handleWebhook(req, res, io));
+
 app.post("/toggle", validateRequest(toggleRequestBodySchema), handleSubscribe);
 
 //////////////////////////////////////////
