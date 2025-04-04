@@ -15,7 +15,7 @@ import { CONFIG } from "./config/config";
 import { instrument } from "@socket.io/admin-ui";
 
 const app = express();
-const server = createServer(app);
+const server = createServer(app); // Folosim serverul Express
 const io = new Server(server, {
   cors: {
     origin: [CONFIG.FRONTEND_URL, "https://admin.socket.io"],
@@ -24,7 +24,7 @@ const io = new Server(server, {
 });
 
 instrument(io, {
-  auth: false
+  auth: false,
 });
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -42,9 +42,11 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = 4000;
+const PORT = CONFIG.PORT; // Folosim CONFIG.PORT
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
+  console.log(listEndpoints(app)); // Mutam listEndpoints aici.
+  console.log(`Backend server at http://localhost:${PORT}`);
 });
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,7 +56,7 @@ server.listen(PORT, () => {
 
 app.use(corsMiddleware);
 app.use(bodyParser.json());
-const port = CONFIG.PORT;
+
 //////////////////////////////////////////
 app.post(
   "/kick/login/exchange-code",
@@ -67,12 +69,7 @@ app.post("/toggle", validateRequest(toggleRequestBodySchema), handleSubscribe);
 
 //////////////////////////////////////////
 app.use(requestLogger);
-console.log(listEndpoints(app));
 
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "Root!" });
-});
-
-app.listen(port, () => {
-  console.log(`Backend server at http://localhost:${port}`);
 });
