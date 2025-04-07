@@ -4,6 +4,7 @@ import express, { Request, Response } from "express";
 import listEndpoints from "express-list-endpoints";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { CONFIG } from "./config/config";
 import { handleSubscribe, handleWebhook } from "./controllers/hooksController";
 import { exchangeCode } from "./controllers/kickControllers";
 import corsMiddleware from "./middleware/cors";
@@ -11,8 +12,7 @@ import { requestLogger } from "./middleware/logger";
 import { validateRequest } from "./middleware/validation";
 import { exchangeCodeSchema } from "./models/exchangeCodeSchema";
 import { toggleRequestBodySchema } from "./models/toogleRequestSchema";
-import { CONFIG } from "./config/config";
-import { instrument } from "@socket.io/admin-ui";
+// import { instrument } from "@socket.io/admin-ui";
 
 const app = express();
 const server = createServer(app); // Folosim serverul Express
@@ -23,9 +23,9 @@ const io = new Server(server, {
   },
 });
 
-instrument(io, {
-  auth: false,
-});
+// instrument(io, {
+//   auth: false,
+// });
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -56,6 +56,17 @@ server.listen(PORT, () => {
 
 app.use(corsMiddleware);
 app.use(bodyParser.json());
+app.use(requestLogger);
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*"); // doar pt test, nu în prod!
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  next();
+});
 
 //////////////////////////////////////////
 app.post(
@@ -68,7 +79,6 @@ app.post("/kick/hooks", (req, res) => handleWebhook(req, res, io));
 app.post("/toggle", validateRequest(toggleRequestBodySchema), handleSubscribe);
 
 //////////////////////////////////////////
-app.use(requestLogger);
 
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "Root!" });
