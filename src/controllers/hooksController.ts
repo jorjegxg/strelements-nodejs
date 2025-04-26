@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
+import { Server } from "socket.io";
 import {
   subscribeToEvents,
   unsubscribeFromEvents,
 } from "../services/hooksService";
-import { Server } from "socket.io";
 
 const handleSubscribe = async (req: Request, res: Response) => {
   const { accessToken, isActive } = req.body;
@@ -23,10 +23,27 @@ const handleSubscribe = async (req: Request, res: Response) => {
 };
 
 const handleWebhook = (req: Request, res: Response, io: Server) => {
-  const { body } = req;
-  console.log("Webhook received:", body);
-  io.emit("message", body); 
+  const { body , headers } = req;
+  console.log("Received webhook headers:",  headers);
+  console.log("Webhook received---------------------------:", body);
+
+  if(headers["kick-event-type"] === "livestream.status.updated") {
+    const user_id = body.broadcaster.user_id;
+    console.log("User ID:", user_id);
+    io.to(user_id).emit("live", {
+      headers: headers,
+      body: body,
+    }); 
+  }
+
+
+
+  io.emit("message", {
+    headers: headers,
+    body: body,
+  }); 
   res.status(200).send("Webhook primit cu succes");
 };
 
 export { handleSubscribe, handleWebhook };
+

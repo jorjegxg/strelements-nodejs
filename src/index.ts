@@ -18,7 +18,7 @@ const app = express();
 const server = createServer(app); // Folosim serverul Express
 const io = new Server(server, {
   cors: {
-    origin: [CONFIG.FRONTEND_URL, "https://admin.socket.io"],
+    origin: [CONFIG.FRONTEND_URL],//, "https://admin.socket.io"],
     methods: ["GET", "POST"],
   },
 });
@@ -29,13 +29,22 @@ const io = new Server(server, {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-io.on("connection", (socket) => {
-  console.log("Client connected");
 
-  socket.on("message", (message) => {
-    console.log("Received message:", message);
-    io.emit("message", message); // Trimite mesajul către toți clienții
+
+io.on("connection", (socket) => {
+  console.log('Socket conectat:', socket.id);
+
+
+  socket.on('join_room', (room) => {
+    socket.join(room);
+    console.log(`Socket ${socket.id} s-a alăturat camerei ${room}`);
   });
+
+
+  // socket.on("message", (message) => {
+  //   console.log("Received message:", message);
+  //   io.emit("message", message); 
+  // });
 
   socket.on("disconnect", () => {
     console.log("Client disconnected");
