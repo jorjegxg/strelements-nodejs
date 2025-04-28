@@ -9,16 +9,35 @@ const authDataSchema = z.object({
   scope: z.string(),
   token_type: z.string(),
 });
-const userSchema = z.object({
-  data: z.object({
-    active: z.boolean(),
-    client_id: z.string(),
-    exp: z.number(),
-    scope: z.string(),
-    token_type: z.string(),
-  }),
+/**{
+  data: [
+    {
+      user_id: 9537792,
+      name: 'gxg_3nd',
+      email: 'yotrevorgxg@gmail.com',
+      profile_picture: 'https://dbxmjjzl5pc1g.cloudfront.net/68417caf-7cdd-43e3-8a65-c6d605e1b881/images/user-profile-pic.png'
+    }
+  ],
+  message: 'OK'
+} */
+
+const usersSchema = z.object({
+  data: z.array(
+    z.object({
+      user_id: z.number(),
+      name: z.string(),
+      email: z.string().email(),
+      profile_picture: z.string().url()
+    })
+  ),
   message: z.string(),
 });
+
+
+type User = z.infer<typeof usersSchema>["data"][number];
+
+
+
 
 const exchangeAuthCode = async (
   authorizationCode: string,
@@ -48,11 +67,38 @@ const exchangeAuthCode = async (
   }
 };
 
-async function getUser(authorizationToken: string) {
+// async function getUser(authorizationToken: string) {
+//   try {
+//     const response = await axios.post(
+//       CONFIG.KICK_API_URL + "/token/introspect",
+//       {},
+//       {
+//         headers: {
+//           Authorization: `Bearer ${authorizationToken}`,
+//         },
+//       }
+//     );
+
+//     return userSchema.parse(response.data);
+//   } catch (error: any) {
+//     if (error instanceof z.ZodError) {
+//       console.error("Erori Zod:", error.errors);
+
+//       error.errors.forEach((issue) => {
+//         console.error(`Eroare la ${issue.path.join(".")}: ${issue.message}`);
+//       });
+//     } else {
+//       console.error("Altă eroare:", error);
+//     }
+//   }
+// }
+
+
+
+async function getCurrentUser(authorizationToken: string) : Promise<User | undefined> {
   try {
-    const response = await axios.post(
-      CONFIG.KICK_API_URL + "/token/introspect",
-      {},
+    const response = await axios.get(
+      CONFIG.KICK_API_URL + "/users",
       {
         headers: {
           Authorization: `Bearer ${authorizationToken}`,
@@ -60,7 +106,11 @@ async function getUser(authorizationToken: string) {
       }
     );
 
-    return userSchema.parse(response.data);
+
+    const users = usersSchema.parse(response.data)
+
+
+    return response.data.data[0];
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       console.error("Erori Zod:", error.errors);
@@ -74,4 +124,5 @@ async function getUser(authorizationToken: string) {
   }
 }
 
-export { exchangeAuthCode, getUser };
+export { exchangeAuthCode, getCurrentUser as getUser };
+

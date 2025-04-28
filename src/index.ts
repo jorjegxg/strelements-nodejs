@@ -12,6 +12,7 @@ import { requestLogger } from "./middleware/logger";
 import { validateRequest } from "./middleware/validation";
 import { exchangeCodeSchema } from "./models/exchangeCodeSchema";
 import { toggleRequestBodySchema } from "./models/toogleRequestSchema";
+// import { getUser } from "./services/authService";
 // import { instrument } from "@socket.io/admin-ui";
 
 const app = express();
@@ -35,7 +36,11 @@ io.on("connection", (socket) => {
   console.log('Socket conectat:', socket.id);
 
 
-  socket.on('join_room', (room) => {
+  socket.on('join_room', async (room) => {
+
+    
+    // console.log('User--:', user?.data.client_id);
+
     socket.join(room);
     console.log(`Socket ${socket.id} s-a alăturat camerei ${room}`);
   });

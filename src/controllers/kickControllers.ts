@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
-import { exchangeAuthCode, getUser } from "../services/authService";
-import { handleSubscribe } from "./hooksController";
+import { exchangeAuthCode, getUser as getCurrentUser } from "../services/authService";
 import { subscribeToEvents } from "../services/hooksService";
+
+
+
 
 const exchangeCode = async (req: Request, res: Response) => {
   const { authorizationCode, codeVerifier } = req.body;
@@ -9,23 +11,20 @@ const exchangeCode = async (req: Request, res: Response) => {
   try {
     let authData = await exchangeAuthCode(authorizationCode, codeVerifier);
 
-    console.log("athData", authData);
-    ////////////////////
-    let userData = await getUser(authData.access_token);
+    const [_,currentUser] = await Promise.all([
+      subscribeToEvents(authData.access_token),
+      getCurrentUser(authData.access_token),
+    ]);
 
-    /////////////////
 
-    console.log("userData", userData);
 
     let response = {
       authData: authData,
-      client_id: userData?.data.client_id,
+      user: currentUser,
     };
 
-    //TODO: vezi daca e bine pus aici sau trebuie schimbat locul
-    await subscribeToEvents(authData.access_token);
+    console.log("response 21542jkihn ----------:", response);
 
-    console.log("response", response);
 
     res.status(200).json(response);
   } catch (error: any) {
@@ -34,3 +33,4 @@ const exchangeCode = async (req: Request, res: Response) => {
 };
 
 export { exchangeCode };
+

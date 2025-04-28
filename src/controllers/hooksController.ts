@@ -27,7 +27,7 @@ const handleWebhook = (req: Request, res: Response, io: Server) => {
   console.log("Received webhook headers:",  headers);
   console.log("Webhook received---------------------------:", body);
   const user_id = body.broadcaster.user_id;
-  console.log("User ID -----------------------------453454---------------------:", user_id);
+  console.log("User ID -----------------------------xxxxxxx---------------------:", user_id);
 
   if(headers["kick-event-type"] === "livestream.status.updated") {
     io.to(user_id).emit("live", {
