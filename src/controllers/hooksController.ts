@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Server } from "socket.io";
+import { io } from "../server";
 import {
   subscribeToEvents,
   unsubscribeFromEvents,
@@ -22,7 +22,7 @@ const handleSubscribe = async (req: Request, res: Response) => {
   }
 };
 
-const handleWebhook = (req: Request, res: Response, io: Server) => {
+const handleWebhook = (req: Request, res: Response) => {
   const { body , headers } = req;
   console.log("Received webhook headers:",  headers);
   console.log("Webhook received---------------------------:", body);
