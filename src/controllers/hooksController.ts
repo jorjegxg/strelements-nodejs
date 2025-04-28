@@ -30,10 +30,24 @@ const handleWebhook = (req: Request, res: Response, io: Server) => {
   console.log("User ID -----------------------------xxxxxxx---------------------:", user_id);
 
   if(headers["kick-event-type"] === "livestream.status.updated") {
-    io.to(user_id).emit("live", {
+    console.log("Livestream status updated event received");
+
+    console.log("Emitting live to room:", user_id);
+    io.to(`${user_id}`).emit("live", {
       headers: headers,
       body: body,
     }); 
+
+    //SEE HOW MANY PEOPLE ARE SUBSCRIBED TO SOKET
+
+    const sockets = io.sockets.adapter.rooms.get(user_id);
+    if (sockets) {
+      console.log(`Number of sockets connected to room ${user_id}: ${sockets.size}`);
+    }
+
+    
+
+
   }else if(headers["kick-event-type"] === "chat.message.sent") {
     io.to(user_id).emit("chat", {
       headers: headers,

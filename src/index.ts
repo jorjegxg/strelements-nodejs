@@ -37,19 +37,9 @@ io.on("connection", (socket) => {
 
 
   socket.on('join_room', async (room) => {
-
-    
-    // console.log('User--:', user?.data.client_id);
-
     socket.join(room);
     console.log(`Socket ${socket.id} s-a alăturat camerei ${room}`);
   });
-
-
-  // socket.on("message", (message) => {
-  //   console.log("Received message:", message);
-  //   io.emit("message", message); 
-  // });
 
   socket.on("disconnect", () => {
     console.log("Client disconnected");
