@@ -7,6 +7,27 @@ const subscribeToEvents = async (accessToken: string) => {
         name: "chat.message.sent",
         version: 1,
       },
+      {
+        name: "livestream.status.updated",
+        version: 1,
+      },      {
+        name: "channel.followed",
+        version: 1,
+      },
+      {
+        name: "channel.subscription.new",
+        version: 1,
+      },
+      {
+        name: "channel.subscription.renewal",
+        version: 1,
+      },
+      {
+        name: "channel.subscription.gifts",
+        version: 1,
+      },
+
+
     ],
     method: "webhook",
   };
@@ -78,3 +99,4 @@ const getSubscriptions = async (accessToken: string) => {
 };
 
 export { getSubscriptions, subscribeToEvents, unsubscribeFromEvents };
+
