@@ -1,15 +1,35 @@
 import { Request, Response } from "express";
 import { io } from "../../server";
+
+import { z } from "zod";
+import { ApiError } from "../../utils/ApiError";
+import { exchangeCodeSchema } from "./schema";
 import {
+  exchangeAuthCode,
+  getCurrentUser,
   subscribeToEvents,
   unsubscribeFromEvents,
-} from "../../services/hooksService";
-import { exchangeAuthCode, getCurrentUser } from "./service";
+} from "./service";
+
+//1.validare date
+// 2.apelare service cu datele validate
+// 3.returnare succes
+// 4.1 returnare eroare api
+// 4.2 Returnare orice alta eroare
 
 const exchangeCode = async (req: Request, res: Response) => {
-  const { authorizationCode, codeVerifier } = req.body;
-
   try {
+    // 1.validare date
+    const parsedBody = exchangeCodeSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      res.status(400).json({
+        error: "Invalid request body",
+        details: parsedBody.error.errors,
+      });
+    }
+
+    // 2.apelare service cu datele validate
+    const { authorizationCode, codeVerifier } = req.body;
     let authData = await exchangeAuthCode(authorizationCode, codeVerifier);
 
     const [_, currentUser] = await Promise.all([
@@ -22,26 +42,56 @@ const exchangeCode = async (req: Request, res: Response) => {
       user: currentUser,
     };
 
+    // 3.returnare succes
     res.status(200).json(response);
   } catch (error: any) {
+    // 4.1 returnare eroare api
+    console.error("❌ Error:", error);
+    // 4.2 Returnare orice alta eroare
+    if (error instanceof ApiError) {
+      res.status(error.statusCode).json({ error: error.message });
+    }
+
     res.status(500).send(error.message);
   }
 };
 
-const handleSubscribe = async (req: Request, res: Response) => {
-  const { accessToken, isActive } = req.body;
-  let data = null;
+const handleSubscribeSchema = z.object({
+  isActive: z.boolean(),
+  accessToken: z.string(),
+});
 
+const handleSubscribe = async (req: Request, res: Response) => {
   try {
+    //1.validare date
+    const parsedBody = handleSubscribeSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      res.status(400).json({
+        error: "Invalid request body",
+        details: parsedBody.error.errors,
+      });
+    }
+
+    // 2.apelare service cu datele validate
+    const { accessToken, isActive } = req.body;
+    let data = null;
+
     if (isActive === true) {
       data = await unsubscribeFromEvents(accessToken);
     } else {
       data = await subscribeToEvents(accessToken);
     }
 
-    res.json(data);
+    // 3.returnare succes
+    res.status(200).json(data);
   } catch (error: any) {
-    res.status(500).json({ error: "Error subscribing to events" });
+    // 4.1 returnare eroare api
+    console.error("❌ Error:", error);
+    if (error instanceof ApiError) {
+      res.status(error.statusCode).json({ error: error.message });
+    }
+    // 4.2 Returnare orice alta eroare
+    res.status(500).send(error.message);
   }
 };
 
