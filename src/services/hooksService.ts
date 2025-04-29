@@ -1,5 +1,5 @@
 import axios from "axios";
-
+//unused for now
 const subscribeToEvents = async (accessToken: string) => {
   const body = {
     events: [
@@ -10,7 +10,8 @@ const subscribeToEvents = async (accessToken: string) => {
       {
         name: "livestream.status.updated",
         version: 1,
-      },      {
+      },
+      {
         name: "channel.followed",
         version: 1,
       },
@@ -26,8 +27,6 @@ const subscribeToEvents = async (accessToken: string) => {
         name: "channel.subscription.gifts",
         version: 1,
       },
-
-
     ],
     method: "webhook",
   };
@@ -99,4 +98,3 @@ const getSubscriptions = async (accessToken: string) => {
 };
 
 export { getSubscriptions, subscribeToEvents, unsubscribeFromEvents };
-
