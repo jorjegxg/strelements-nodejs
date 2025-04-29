@@ -1,5 +1,4 @@
 import axios from "axios";
-import { z } from "zod";
 import { CONFIG } from "../../config/config";
 import { authDataSchema, User, usersSchema } from "./schema";
 
@@ -7,16 +6,16 @@ const exchangeAuthCode = async (
   authorizationCode: string,
   codeVerifier: string
 ) => {
-  const body = {
-    client_id: CONFIG.CLIENT_ID,
-    client_secret: CONFIG.CLIENT_SECRET,
-    redirect_uri: CONFIG.FRONTEND_URL + "/callback",
-    grant_type: "authorization_code",
-    code_verifier: codeVerifier,
-    code: authorizationCode,
-  };
-
   try {
+    const body = {
+      client_id: CONFIG.CLIENT_ID,
+      client_secret: CONFIG.CLIENT_SECRET,
+      redirect_uri: CONFIG.FRONTEND_URL + "/callback",
+      grant_type: "authorization_code",
+      code_verifier: codeVerifier,
+      code: authorizationCode,
+    };
+
     const response = await axios.post(CONFIG.KICK_AUTH_URL, body, {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -45,15 +44,10 @@ async function getCurrentUser(
 
     return response.data.data[0];
   } catch (error: any) {
-    if (error instanceof z.ZodError) {
-      console.error("Erori Zod:", error.errors);
-
-      error.errors.forEach((issue) => {
-        console.error(`Eroare la ${issue.path.join(".")}: ${issue.message}`);
-      });
-    } else {
-      console.error("Altă eroare:", error);
-    }
+    throw new Error(
+      error.response?.data?.error_description ||
+        "Failed to get current user" + error
+    );
   }
 }
 

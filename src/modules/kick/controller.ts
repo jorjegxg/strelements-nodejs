@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
 import { io } from "../../server";
 
-import { z } from "zod";
 import { ApiError } from "../../utils/ApiError";
-import { exchangeCodeSchema } from "./schema";
+import { exchangeCodeSchema, handleSubscribeSchema } from "./schema";
 import {
   exchangeAuthCode,
   getCurrentUser,
@@ -55,11 +54,6 @@ const exchangeCode = async (req: Request, res: Response) => {
     res.status(500).send(error.message);
   }
 };
-
-const handleSubscribeSchema = z.object({
-  isActive: z.boolean(),
-  accessToken: z.string(),
-});
 
 const handleSubscribe = async (req: Request, res: Response) => {
   try {

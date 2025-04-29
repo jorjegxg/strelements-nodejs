@@ -32,9 +32,15 @@ const toggleRequestBodySchema = z.object({
   accessToken: z.string(),
 });
 
+const handleSubscribeSchema = z.object({
+  isActive: z.boolean(),
+  accessToken: z.string(),
+});
+
 export {
   authDataSchema,
   exchangeCodeSchema,
+  handleSubscribeSchema,
   toggleRequestBodySchema,
   User,
   usersSchema,
