@@ -106,7 +106,15 @@ const unsubscribeFromEvents = async (accessToken: string) => {
   try {
     const subscriptions = await getSubscriptions(accessToken);
 
+    console.log("subscriptions", subscriptions);
+
+    if (subscriptions.data.length === 0) {
+      return { message: "No subscriptions to unsubscribe from" };
+    }
+
     for (const index in subscriptions.data) {
+      console.log("index", index);
+
       await axios.delete(
         `https://api.kick.com/public/v1/events/subscriptions?id=${subscriptions.data[index].id}`,
         {
@@ -115,15 +123,11 @@ const unsubscribeFromEvents = async (accessToken: string) => {
           },
         }
       );
-      return { message: "Unsubscribed from events" };
     }
 
-    return { message: "Nothing to unsubscribe" };
+    return { message: "Unsubscribed from events" };
   } catch (error: any) {
-    throw new Error(
-      error.response?.data?.error_description ||
-        "Failed to unsubscribe from events"
-    );
+    throw new Error(error || "Failed to unsubscribe from events");
   }
 };
 
@@ -151,6 +155,7 @@ const getSubscriptions = async (accessToken: string) => {
 export {
   exchangeAuthCode,
   getCurrentUser,
+  getSubscriptions,
   subscribeToEvents,
   unsubscribeFromEvents,
 };

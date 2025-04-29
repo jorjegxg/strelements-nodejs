@@ -2,10 +2,15 @@ import { Request, Response } from "express";
 import { io } from "../../server";
 
 import { ApiError } from "../../utils/ApiError";
-import { exchangeCodeSchema, handleSubscribeSchema } from "./schema";
+import {
+  exchangeCodeSchema,
+  getSubscriptionsStateSchema,
+  handleSubscribeSchema,
+} from "./schema";
 import {
   exchangeAuthCode,
   getCurrentUser,
+  getSubscriptions,
   subscribeToEvents,
   unsubscribeFromEvents,
 } from "./service";
@@ -70,7 +75,8 @@ const handleSubscribe = async (req: Request, res: Response) => {
     const { accessToken, isActive } = req.body;
     let data = null;
 
-    if (isActive === true) {
+    if (isActive === false) {
+      console.log("Unsubscribing from events...");
       data = await unsubscribeFromEvents(accessToken);
     } else {
       data = await subscribeToEvents(accessToken);
@@ -121,4 +127,41 @@ const handleWebhook = (req: Request, res: Response) => {
   res.status(200).send("Webhook primit cu succes");
 };
 
-export { exchangeCode, handleSubscribe, handleWebhook };
+const getEffectsState = async (req: Request, res: Response) => {
+  try {
+    // 1.validare date
+    const parsedBody = getSubscriptionsStateSchema.safeParse(req.headers);
+    if (!parsedBody.success) {
+      res.status(400).json({
+        error: "Invalid headers",
+        details: parsedBody.error.errors,
+      });
+    }
+
+    // 2.apelare service cu datele validate
+    const headers = req.headers;
+    const authorization = headers["authorization"];
+    console.log("accessToken--------------", authorization);
+
+    // TODO: repara:
+    let data = await getSubscriptions(authorization!);
+
+    const areEffectsActive = data.data.length > 0;
+    console.log(areEffectsActive);
+
+    // 3.returnare succes
+    res.status(200).json({
+      isActive: areEffectsActive,
+    });
+  } catch (error: any) {
+    // 4.1 returnare eroare api
+    console.error("❌ Error:", error);
+    if (error instanceof ApiError) {
+      res.status(error.statusCode).json({ error: error.message });
+    }
+    // 4.2 Returnare orice alta eroare
+    res.status(500).send(error.message);
+  }
+};
+
+export { exchangeCode, getEffectsState, handleSubscribe, handleWebhook };

@@ -1,7 +1,12 @@
 import express from "express";
 
 import { validateRequest } from "../../middleware/validation";
-import { exchangeCode, handleSubscribe, handleWebhook } from "./controller";
+import {
+  exchangeCode,
+  getEffectsState,
+  handleSubscribe,
+  handleWebhook,
+} from "./controller";
 import { exchangeCodeSchema, toggleRequestBodySchema } from "./schema";
 const kickRouter = express.Router();
 
@@ -11,6 +16,8 @@ kickRouter.post(
   exchangeCode
 );
 kickRouter.post("/kick/hooks", handleWebhook);
+
+kickRouter.get("/effects-state", getEffectsState);
 
 kickRouter.post(
   "/toggle",

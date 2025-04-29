@@ -37,9 +37,14 @@ const handleSubscribeSchema = z.object({
   accessToken: z.string(),
 });
 
+const getSubscriptionsStateSchema = z.object({
+  authorization: z.string(),
+});
+
 export {
   authDataSchema,
   exchangeCodeSchema,
+  getSubscriptionsStateSchema,
   handleSubscribeSchema,
   toggleRequestBodySchema,
   User,
