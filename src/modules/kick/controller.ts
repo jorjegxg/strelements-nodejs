@@ -5,6 +5,7 @@ import { ApiError } from "../../utils/ApiError";
 import {
   exchangeCodeSchema,
   getSubscriptionsStateSchema,
+  headerWithAuthenticationSchema,
   refreshTokenSchema,
   toggleRequestBodySchema,
   tokenRevocationSchema,
@@ -69,22 +70,25 @@ const handleSubscribe = async (req: Request, res: Response) => {
   try {
     //1.validare date
     const parsedBody = toggleRequestBodySchema.safeParse(req.body);
-    if (!parsedBody.success) {
+    const parsedHeaders = headerWithAuthenticationSchema.safeParse(req.headers);
+    if (!parsedBody.success || !parsedHeaders.success) {
       res.status(400).json({
         error: "Invalid request body",
-        details: parsedBody.error.errors,
+        details: parsedBody?.error?.errors || parsedHeaders?.error?.errors,
       });
     }
 
     // 2.apelare service cu datele validate
-    const { accessToken, isActive } = req.body;
+    const { isActive } = req.body;
+    const { authorization } = req.headers;
+
     let data = null;
 
     if (isActive === false) {
       console.log("Unsubscribing from events...");
-      data = await unsubscribeFromEvents(accessToken);
+      data = await unsubscribeFromEvents(authorization!);
     } else {
-      data = await subscribeToEvents(accessToken);
+      data = await subscribeToEvents(authorization!);
     }
 
     // 3.returnare succes
