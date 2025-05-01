@@ -6,8 +6,14 @@ import {
   getEffectsState,
   handleSubscribe,
   handleWebhook,
+  logout,
+  refreshToken,
 } from "./controller";
-import { exchangeCodeSchema, toggleRequestBodySchema } from "./schema";
+import {
+  exchangeCodeSchema,
+  refreshTokenSchema,
+  toggleRequestBodySchema,
+} from "./schema";
 const kickRouter = express.Router();
 
 kickRouter.post(
@@ -24,5 +30,15 @@ kickRouter.post(
   validateRequest(toggleRequestBodySchema),
   handleSubscribe
 );
+
+kickRouter.post(
+  "/kick/refresh",
+  validateRequest(refreshTokenSchema),
+  refreshToken
+);
+
+kickRouter.post("/kick/logout", logout);
+
+//delogare:
 
 export default kickRouter;

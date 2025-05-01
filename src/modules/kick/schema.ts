@@ -1,11 +1,11 @@
 import { z } from "zod";
 
 const authDataSchema = z.object({
-  access_token: z.string(),
-  expires_in: z.number(),
+  access_token: z.string().min(1, "Missing access_token"),
+  expires_in: z.number().min(1, "Missing expires_in"),
   refresh_token: z.string(),
-  scope: z.string(),
-  token_type: z.string(),
+  scope: z.string().min(1, "Missing scope"),
+  token_type: z.string().min(1, "Missing token_type"),
 });
 
 const usersSchema = z.object({
@@ -29,24 +29,40 @@ const exchangeCodeSchema = z.object({
 
 const toggleRequestBodySchema = z.object({
   isActive: z.boolean(),
-  accessToken: z.string(),
+  // accessToken: z.string(),
 });
 
-const handleSubscribeSchema = z.object({
-  isActive: z.boolean(),
-  accessToken: z.string(),
+const headerWithAuthenticationSchema = z.object({
+  authorization: z.string().min(1, "Missing authorization"),
 });
 
 const getSubscriptionsStateSchema = z.object({
   authorization: z.string(),
 });
 
+const tokenRevocationSchema = z.object({
+  token: z.string().min(1, "Missing token"),
+  token_hint_type: z.enum(["access_token", "refresh_token"]),
+});
+
+const refreshTokenSchema = z.object({
+  refresh_token: z.string().min(1, "Missing refresh token"),
+  client_id: z.string().min(1, "Missing client_id"),
+  client_secret: z.string().min(1, "Missing client_secret"),
+  grant_type: z.string().min(1, "Missing grant_type"),
+});
+
+type TokenSchema = z.infer<typeof refreshTokenSchema>;
+
 export {
   authDataSchema,
   exchangeCodeSchema,
   getSubscriptionsStateSchema,
-  handleSubscribeSchema,
+  headerWithAuthenticationSchema,
+  refreshTokenSchema,
   toggleRequestBodySchema,
+  tokenRevocationSchema,
+  TokenSchema,
   User,
   usersSchema,
 };

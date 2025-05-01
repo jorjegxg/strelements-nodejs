@@ -5,12 +5,17 @@ import { ApiError } from "../../utils/ApiError";
 import {
   exchangeCodeSchema,
   getSubscriptionsStateSchema,
-  handleSubscribeSchema,
+  refreshTokenSchema,
+  toggleRequestBodySchema,
+  tokenRevocationSchema,
+  TokenSchema,
 } from "./schema";
 import {
   exchangeAuthCode,
   getCurrentUser,
   getSubscriptions,
+  refreshKickToken,
+  revokeAuthToken,
   subscribeToEvents,
   unsubscribeFromEvents,
 } from "./service";
@@ -63,7 +68,7 @@ const exchangeCode = async (req: Request, res: Response) => {
 const handleSubscribe = async (req: Request, res: Response) => {
   try {
     //1.validare date
-    const parsedBody = handleSubscribeSchema.safeParse(req.body);
+    const parsedBody = toggleRequestBodySchema.safeParse(req.body);
     if (!parsedBody.success) {
       res.status(400).json({
         error: "Invalid request body",
@@ -164,4 +169,75 @@ const getEffectsState = async (req: Request, res: Response) => {
   }
 };
 
-export { exchangeCode, getEffectsState, handleSubscribe, handleWebhook };
+const logout = async (req: Request, res: Response) => {
+  try {
+    // 1.validare date
+    const parsedBody = tokenRevocationSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      res.status(400).json({
+        error: "Invalid request body",
+        details: parsedBody.error.errors,
+      });
+    }
+
+    // 2.apelare service cu datele validate
+    const { token, token_hint_type } = req.body;
+
+    await unsubscribeFromEvents(token),
+      await revokeAuthToken(token, token_hint_type),
+      // 3.returnare succes
+      res.status(200).json({
+        message: "Logout successful",
+      });
+  } catch (error: any) {
+    // 4.1 returnare eroare api
+    console.error("❌ Error:", error);
+    if (error instanceof ApiError) {
+      res.status(error.statusCode).json({ error: error.message });
+    }
+    // 4.2 Returnare orice alta eroare
+    res.status(500).send(error.message);
+  }
+};
+const refreshToken = async (req: Request, res: Response) => {
+  try {
+    // 1.validare date
+    const parsedBody = refreshTokenSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      res.status(400).json({
+        error: "Invalid request body",
+        details: parsedBody.error.errors,
+      });
+    }
+
+    // 2.apelare service cu datele validate
+    let tokenSchema: TokenSchema = {
+      client_id: parsedBody.data!.client_id,
+      client_secret: parsedBody.data!.client_secret,
+      grant_type: parsedBody.data!.grant_type,
+      refresh_token: parsedBody.data!.refresh_token,
+    };
+    // const { tokenSchema } = parsedBody.data;
+
+    const newTokens = await refreshKickToken(tokenSchema);
+    // 3.returnare succes
+    res.status(200).json(newTokens);
+  } catch (error: any) {
+    // 4.1 returnare eroare api
+    console.error("❌ Error:", error);
+    if (error instanceof ApiError) {
+      res.status(error.statusCode).json({ error: error.message });
+    }
+    // 4.2 Returnare orice alta eroare
+    res.status(500).send(error.message);
+  }
+};
+
+export {
+  exchangeCode,
+  getEffectsState,
+  handleSubscribe,
+  handleWebhook,
+  logout,
+  refreshToken,
+};

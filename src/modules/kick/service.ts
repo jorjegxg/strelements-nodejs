@@ -1,6 +1,6 @@
 import axios from "axios";
 import { CONFIG } from "../../config/config";
-import { authDataSchema, User, usersSchema } from "./schema";
+import { authDataSchema, TokenSchema, User, usersSchema } from "./schema";
 
 const exchangeAuthCode = async (
   authorizationCode: string,
@@ -106,24 +106,22 @@ const unsubscribeFromEvents = async (accessToken: string) => {
   try {
     const subscriptions = await getSubscriptions(accessToken);
 
-    console.log("subscriptions", subscriptions);
-
     if (subscriptions.data.length === 0) {
       return { message: "No subscriptions to unsubscribe from" };
     }
 
-    for (const index in subscriptions.data) {
-      console.log("index", index);
-
-      await axios.delete(
-        `https://api.kick.com/public/v1/events/subscriptions?id=${subscriptions.data[index].id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-    }
+    await Promise.all(
+      subscriptions.data.map((sub: { id: string }) =>
+        axios.delete(
+          `https://api.kick.com/public/v1/events/subscriptions?id=${sub.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        )
+      )
+    );
 
     return { message: "Unsubscribed from events" };
   } catch (error: any) {
@@ -131,6 +129,46 @@ const unsubscribeFromEvents = async (accessToken: string) => {
   }
 };
 
+const revokeAuthToken = async (accessToken: string, tokenType: string) => {
+  try {
+    const response = await axios.post(
+      `https://id.kick.com/oauth/revoke?token=${accessToken}&token_hint_type=${tokenType}`,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.error_description ||
+        `Failed to revoke token ${error}`
+    );
+  }
+};
+
+const refreshKickToken = async (tokenSchema: TokenSchema) => {
+  try {
+    const response = await axios.post(
+      "https://id.kick.com/oauth/token",
+      tokenSchema,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.error_description ||
+        `Failed to refresh token ${error}`
+    );
+  }
+};
 const getSubscriptions = async (accessToken: string) => {
   try {
     const response = await axios.get(
@@ -156,6 +194,8 @@ export {
   exchangeAuthCode,
   getCurrentUser,
   getSubscriptions,
+  refreshKickToken,
+  revokeAuthToken,
   subscribeToEvents,
   unsubscribeFromEvents,
 };
