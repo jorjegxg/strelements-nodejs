@@ -67,6 +67,7 @@ const exchangeCode = async (req: Request, res: Response) => {
 };
 
 const handleSubscribe = async (req: Request, res: Response) => {
+  // TODO: aici este o eroare daca dai de prea multe ori pe switch, daca o apelezi de prea multe ori repede
   try {
     //1.validare date
     const parsedBody = toggleRequestBodySchema.safeParse(req.body);
@@ -139,11 +140,11 @@ const handleWebhook = (req: Request, res: Response) => {
 const getEffectsState = async (req: Request, res: Response) => {
   try {
     // 1.validare date
-    const parsedBody = getSubscriptionsStateSchema.safeParse(req.headers);
-    if (!parsedBody.success) {
+    const parsedHeaders = getSubscriptionsStateSchema.safeParse(req.headers);
+    if (!parsedHeaders.success) {
       res.status(400).json({
         error: "Invalid headers",
-        details: parsedBody.error.errors,
+        details: parsedHeaders.error.errors,
       });
     }
 
@@ -177,18 +178,24 @@ const logout = async (req: Request, res: Response) => {
   try {
     // 1.validare date
     const parsedBody = tokenRevocationSchema.safeParse(req.body);
-    if (!parsedBody.success) {
+    const parsedHeaders = headerWithAuthenticationSchema.safeParse(req.headers);
+
+    if (!parsedBody.success || !parsedHeaders.success) {
       res.status(400).json({
-        error: "Invalid request body",
-        details: parsedBody.error.errors,
+        error: "Invalid request body or headers",
+        details: parsedBody?.error?.errors || parsedHeaders?.error?.errors,
       });
     }
 
-    // 2.apelare service cu datele validate
-    const { token, token_hint_type } = req.body;
+    console.log("parsedBody--------", parsedBody);
+    console.log("parsedHeaders--------", parsedHeaders);
 
-    await unsubscribeFromEvents(token),
-      await revokeAuthToken(token, token_hint_type),
+    // 2.apelare service cu datele validate
+    const { token_hint_type } = parsedBody.data!;
+    const { authorization } = parsedHeaders.data!;
+
+    await unsubscribeFromEvents(authorization),
+      await revokeAuthToken(authorization, token_hint_type),
       // 3.returnare succes
       res.status(200).json({
         message: "Logout successful",

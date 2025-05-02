@@ -41,7 +41,6 @@ const getSubscriptionsStateSchema = z.object({
 });
 
 const tokenRevocationSchema = z.object({
-  token: z.string().min(1, "Missing token"),
   token_hint_type: z.enum(["access_token", "refresh_token"]),
 });
 
