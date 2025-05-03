@@ -42,8 +42,8 @@ const exchangeCode = async (req: Request, res: Response) => {
     const { authorizationCode, codeVerifier } = req.body;
     let authData = await exchangeAuthCode(authorizationCode, codeVerifier);
 
-    const [_, currentUser] = await Promise.all([
-      subscribeToEvents(authData.access_token),
+    const [currentUser] = await Promise.all([
+      // subscribeToEvents(authData.access_token),
       getCurrentUser(authData.access_token),
     ]);
 
@@ -51,6 +51,10 @@ const exchangeCode = async (req: Request, res: Response) => {
       authData: authData,
       user: currentUser,
     };
+
+    console.log(
+      "authorization ------------------------ " + authData.access_token
+    );
 
     // 3.returnare succes
     res.status(200).json(response);
