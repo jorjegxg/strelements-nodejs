@@ -52,6 +52,8 @@ const exchangeCode = async (req: Request, res: Response) => {
       user: currentUser,
     };
 
+    console.log("response ------------------------ ", response);
+
     console.log(
       "authorization ------------------------ " + authData.access_token
     );
@@ -111,6 +113,15 @@ const handleSubscribe = async (req: Request, res: Response) => {
 
 const handleWebhook = (req: Request, res: Response) => {
   const { body, headers } = req;
+
+  console.log(
+    "headers -----------------------------xxxxxxx---------------------:"
+  );
+  console.log(headers);
+  console.log(
+    "body -----------------------------xxxxxxx---------------------:"
+  );
+  console.log(body);
 
   if (headers["kick-event-type"] === "livestream.status.updated") {
     const user_id = body.broadcaster.user_id;
