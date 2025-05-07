@@ -3,7 +3,6 @@ import bodyParser from "body-parser";
 import express, { Request, Response } from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import { CONFIG } from "./config/config";
 import corsMiddleware from "./middleware/cors";
 import { requestLogger } from "./middleware/logger";
 import kickRouter from "./modules/kick/router";
@@ -12,8 +11,8 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: [CONFIG.FRONTEND_URL, CONFIG.FRONTEND_URL2, CONFIG.FRONTEND_URL3],
-    methods: ["GET", "POST"],
+    // origin: [CONFIG.FRONTEND_URL, CONFIG.FRONTEND_URL2, CONFIG.FRONTEND_URL3],
+    // methods: ["GET", "POST"],
   },
 });
 
