@@ -11,8 +11,9 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
+    origin: "*",
     // origin: [CONFIG.FRONTEND_URL, CONFIG.FRONTEND_URL2, CONFIG.FRONTEND_URL3],
-    // methods: ["GET", "POST"],
+    methods: ["GET", "POST"],
   },
 });
 

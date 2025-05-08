@@ -21,6 +21,7 @@ const exchangeAuthCode = async (
         "Content-Type": "application/x-www-form-urlencoded",
       },
     });
+
     return authDataSchema.parse(response.data);
   } catch (error: any) {
     throw new Error(
