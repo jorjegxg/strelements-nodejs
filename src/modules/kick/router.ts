@@ -3,6 +3,7 @@ import express from "express";
 import { validateRequest } from "../../middleware/validation";
 import {
   exchangeCode,
+  getChannelInformation,
   getEffectsState,
   handleSubscribe,
   handleWebhook,
@@ -38,7 +39,6 @@ kickRouter.post(
 );
 
 kickRouter.post("/kick/logout", logout);
-
-//delogare:
+kickRouter.get("/kick/channel", getChannelInformation);
 
 export default kickRouter;

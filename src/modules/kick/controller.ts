@@ -13,6 +13,7 @@ import {
 } from "./schema";
 import {
   exchangeAuthCode,
+  getChannel,
   getCurrentUser,
   getSubscriptions,
   refreshKickToken,
@@ -236,6 +237,8 @@ const refreshToken = async (req: Request, res: Response) => {
       });
     }
 
+    console.log("parsedBody--------", parsedBody);
+
     // 2.apelare service cu datele validate
     let tokenSchema: TokenSchema = {
       client_id: parsedBody.data!.client_id,
@@ -245,9 +248,46 @@ const refreshToken = async (req: Request, res: Response) => {
     };
     // const { tokenSchema } = parsedBody.data;
 
+    console.log("tokenSchema--------", tokenSchema);
+
     const newTokens = await refreshKickToken(tokenSchema);
+
+    console.log("newTokens--------", newTokens);
     // 3.returnare succes
     res.status(200).json(newTokens);
+  } catch (error: any) {
+    console.log("errorrrrrrr--------", error);
+    // 4.1 returnare eroare api
+    console.error("❌ Error:", error);
+    if (error instanceof ApiError) {
+      res.status(error.statusCode).json({ error: error.message });
+    }
+    // 4.2 Returnare orice alta eroare
+    res.status(500).send(error.message);
+  }
+};
+
+const getChannelInformation = async (req: Request, res: Response) => {
+  console.log("getChannelInformation");
+  try {
+    // 1.validare date
+    const parsedHeaders = headerWithAuthenticationSchema.safeParse(req.headers);
+    if (!parsedHeaders.success) {
+      res.status(400).json({
+        error: "Invalid headers",
+        details: parsedHeaders.error.errors,
+      });
+    }
+
+    // 2.apelare service cu datele validate
+    const headers = req.headers;
+    const authorization = headers["authorization"];
+    console.log("accessToken--------------", authorization);
+
+    let data = await getChannel(authorization!);
+
+    // 3.returnare succes
+    res.status(200).json(data);
   } catch (error: any) {
     // 4.1 returnare eroare api
     console.error("❌ Error:", error);
@@ -261,6 +301,7 @@ const refreshToken = async (req: Request, res: Response) => {
 
 export {
   exchangeCode,
+  getChannelInformation,
   getEffectsState,
   handleSubscribe,
   handleWebhook,

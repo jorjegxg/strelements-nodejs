@@ -53,8 +53,37 @@ const refreshTokenSchema = z.object({
 
 type TokenSchema = z.infer<typeof refreshTokenSchema>;
 
+const channelSchema = z.object({
+  data: z.array(
+    z.object({
+      broadcaster_user_id: z.number(),
+      slug: z.string(),
+      channel_description: z.string(),
+      banner_picture: z.string(),
+      stream: z.object({
+        url: z.string(),
+        key: z.string(),
+        is_live: z.boolean(),
+        is_mature: z.boolean(),
+        language: z.string(),
+        start_time: z.string(),
+        viewer_count: z.number(),
+        thumbnail: z.string(),
+      }),
+      stream_title: z.string(),
+      category: z.object({
+        id: z.number(),
+        name: z.string(),
+        thumbnail: z.string(),
+      }),
+    })
+  ),
+  message: z.string(),
+});
+
 export {
   authDataSchema,
+  channelSchema,
   exchangeCodeSchema,
   getSubscriptionsStateSchema,
   headerWithAuthenticationSchema,

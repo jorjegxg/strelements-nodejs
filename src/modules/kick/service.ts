@@ -1,6 +1,12 @@
 import axios from "axios";
 import { CONFIG } from "../../config/config";
-import { authDataSchema, TokenSchema, User, usersSchema } from "./schema";
+import {
+  authDataSchema,
+  channelSchema,
+  TokenSchema,
+  User,
+  usersSchema,
+} from "./schema";
 
 const exchangeAuthCode = async (
   authorizationCode: string,
@@ -152,6 +158,7 @@ const revokeAuthToken = async (accessToken: string, tokenType: string) => {
 
 const refreshKickToken = async (tokenSchema: TokenSchema) => {
   try {
+    console.log("tokenSchema----------------------", tokenSchema);
     const response = await axios.post(
       "https://id.kick.com/oauth/token",
       tokenSchema,
@@ -161,6 +168,8 @@ const refreshKickToken = async (tokenSchema: TokenSchema) => {
         },
       }
     );
+
+    console.log("response.data----------------------", response.data);
 
     return response.data;
   } catch (error: any) {
@@ -191,8 +200,32 @@ const getSubscriptions = async (accessToken: string) => {
   }
 };
 
+const getChannel = async (accessToken: string) => {
+  try {
+    const response = await axios.get(
+      "https://api.kick.com/public/v1/channels",
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    const parsedResponse = channelSchema.parse(response.data);
+
+    return parsedResponse;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.error_description ||
+        `Failed to get channel information ${error}`
+    );
+  }
+};
+
 export {
   exchangeAuthCode,
+  getChannel,
   getCurrentUser,
   getSubscriptions,
   refreshKickToken,
