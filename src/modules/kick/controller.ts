@@ -248,8 +248,6 @@ const refreshToken = async (req: Request, res: Response) => {
     };
     // const { tokenSchema } = parsedBody.data;
 
-    console.log("tokenSchema--------", tokenSchema);
-
     const newTokens = await refreshKickToken(tokenSchema);
 
     console.log("newTokens--------", newTokens);

@@ -169,8 +169,6 @@ const refreshKickToken = async (tokenSchema: TokenSchema) => {
       }
     );
 
-    console.log("response.data----------------------", response.data);
-
     return response.data;
   } catch (error: any) {
     throw new Error(
