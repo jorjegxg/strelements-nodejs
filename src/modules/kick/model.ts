@@ -1,5 +1,5 @@
 import { Client } from "pg";
-import dbConfig from "../../config/db";
+import connectionString from "../../config/db";
 
 export type DbUser = {
   name: string;
@@ -14,7 +14,9 @@ export type SessionType = {
 
 //PAS2: VERIFICA DACA NU EXISTA DEJA IN DB
 const checkUserExists = async (kick_id: number) => {
-  const client = new Client(dbConfig);
+  const client = new Client({
+    connectionString: connectionString,
+  });
   try {
     await client.connect();
 
@@ -37,7 +39,9 @@ const checkUserExists = async (kick_id: number) => {
 
 //PAS3: DACA NU EXISTA, INSEREAZA IN DB
 const insertUserInDb = async (user: DbUser) => {
-  const client = new Client(dbConfig);
+  const client = new Client({
+    connectionString: connectionString,
+  });
   try {
     await client.connect();
 
@@ -60,7 +64,9 @@ const insertUserInDb = async (user: DbUser) => {
 };
 //PAS4: DACA EXISTA, FA O SESIUNE NOUA
 const createSession = async (userId: number) => {
-  const client = new Client(dbConfig);
+  const client = new Client({
+    connectionString: connectionString,
+  });
   try {
     await client.connect();
 
