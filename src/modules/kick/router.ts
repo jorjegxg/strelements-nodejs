@@ -2,11 +2,11 @@ import express from "express";
 
 import { validateRequest } from "../../middleware/validation";
 import {
-  exchangeCode,
   getChannelInformation,
   getEffectsState,
   handleSubscribe,
   handleWebhook,
+  kickLogin,
   logout,
   refreshToken,
 } from "./controller";
@@ -20,7 +20,7 @@ const kickRouter = express.Router();
 kickRouter.post(
   "/kick/login/exchange-code",
   validateRequest(exchangeCodeSchema),
-  exchangeCode
+  kickLogin
 );
 kickRouter.post("/kick/hooks", handleWebhook);
 

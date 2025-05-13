@@ -12,10 +12,9 @@ import {
   TokenSchema,
 } from "./schema";
 import {
-  exchangeAuthCode,
   getChannel,
-  getCurrentUser,
   getSubscriptions,
+  loginWithKick,
   refreshKickToken,
   revokeAuthToken,
   subscribeToEvents,
@@ -28,7 +27,7 @@ import {
 // 4.1 returnare eroare api
 // 4.2 Returnare orice alta eroare
 
-const exchangeCode = async (req: Request, res: Response) => {
+const kickLogin = async (req: Request, res: Response) => {
   try {
     // 1.validare date
     const parsedBody = exchangeCodeSchema.safeParse(req.body);
@@ -41,23 +40,9 @@ const exchangeCode = async (req: Request, res: Response) => {
 
     // 2.apelare service cu datele validate
     const { authorizationCode, codeVerifier } = req.body;
-    let authData = await exchangeAuthCode(authorizationCode, codeVerifier);
-
-    const [currentUser] = await Promise.all([
-      // subscribeToEvents(authData.access_token),
-      getCurrentUser(authData.access_token),
-    ]);
-
-    let response = {
-      authData: authData,
-      user: currentUser,
-    };
+    let response = await loginWithKick(authorizationCode, codeVerifier);
 
     console.log("response ------------------------ ", response);
-
-    console.log(
-      "authorization ------------------------ " + authData.access_token
-    );
 
     // 3.returnare succes
     res.status(200).json(response);
@@ -300,11 +285,11 @@ const getChannelInformation = async (req: Request, res: Response) => {
 };
 
 export {
-  exchangeCode,
   getChannelInformation,
   getEffectsState,
   handleSubscribe,
   handleWebhook,
+  kickLogin,
   logout,
   refreshToken,
 };
