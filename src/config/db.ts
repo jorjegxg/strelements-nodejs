@@ -1,3 +1,4 @@
+import { Pool } from "pg";
 import { CONFIG } from "./config";
 console.log("CONFIG------------------", CONFIG.toString());
 // const dbConfig = {
@@ -8,6 +9,11 @@ console.log("CONFIG------------------", CONFIG.toString());
 //   port: Number(CONFIG.DB_PORT),
 // };
 
-const connectionString = CONFIG.DATABASE_URL;
+// const connectionString = CONFIG.DATABASE_URL;
 
-export default connectionString;
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
+
+export default pool;

@@ -43,9 +43,7 @@ const exchangeAuthCode = async (
   }
 };
 
-async function getCurrentUser(
-  authorizationToken: string
-): Promise<User | undefined> {
+async function getCurrentUser(authorizationToken: string): Promise<User> {
   try {
     const response = await axios.get(CONFIG.KICK_API_URL + "/users", {
       headers: {
@@ -232,7 +230,7 @@ async function loginWithKick(authorizationCode: any, codeVerifier: any) {
   console.log("1");
 
   const currentUser = await getCurrentUser(authData.access_token);
-  console.log("2");
+  console.log("2 currentUser---------", currentUser);
 
   await createUserOrSession({
     name: currentUser!.name,
