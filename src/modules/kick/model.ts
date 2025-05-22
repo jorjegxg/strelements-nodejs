@@ -20,7 +20,7 @@ const checkUserExists = async (kick_id: number) => {
   try {
     await client.connect();
 
-    const query = `SELECT * FROM app_user WHERE kick_id = $1`;
+    const query = `SELECT * FROM APP_USERS WHERE kick_id = $1`;
     const values = [kick_id];
 
     const result = await client.query(query, values);
@@ -49,7 +49,7 @@ const insertUserInDb = async (user: DbUser) => {
 
     const { name, email, kick_id } = user;
 
-    const query = `INSERT INTO app_user (name, email, kick_id) VALUES ($1, $2, $3) RETURNING *`;
+    const query = `INSERT INTO APP_USERS (name, email, kick_id) VALUES ($1, $2, $3) RETURNING *`;
     const values = [name, email, kick_id];
 
     const result = await client.query(query, values);

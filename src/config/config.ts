@@ -8,7 +8,6 @@ export const CONFIG = {
   KICK_AUTH_URL: "https://id.kick.com/oauth/token",
   KICK_API_URL: "https://api.kick.com/public/v1",
   PORT: process.env.PORT || 3000,
-  // DATABASE_URL: process.env.DATABASE_URL,
 
   DB_HOST: process.env.DB_HOST,
   DB_PORT: process.env.DB_PORT,
