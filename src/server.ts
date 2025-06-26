@@ -22,6 +22,7 @@ app.use(bodyParser.json());
 app.use(requestLogger);
 
 app.use(kickRouter);
+// app.use(stripeRouter);
 
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "Root!" });
