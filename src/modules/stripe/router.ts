@@ -1,9 +1,9 @@
 // routes/stripe.routes.ts
 import express from "express";
-import { oAuthCallback } from "./controller";
+import { stripeCallback } from "./controller";
 
 const stripeRouter = express.Router();
 
-stripeRouter.get("/stripe/callback", oAuthCallback);
+stripeRouter.get("/stripe/callback", stripeCallback);
 
 export default stripeRouter;

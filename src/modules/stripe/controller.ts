@@ -1,56 +1,33 @@
 import { Request, Response } from "express";
+import { stripeCallbackSchema } from "./schema";
+import { connectStripeAccount } from "./service";
 
-export const oAuthCallback = async (req: Request, res: Response) => {
+export const stripeCallback = async (req: Request, res: Response) => {
   try {
-    console.log("req.body--------------------", req.body);
+    // 1. Validare query
+    const parsed = stripeCallbackSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        error: "Invalid query params",
+        details: parsed.error.errors,
+      });
+    } else {
+      const { code, state } = parsed.data!;
 
-    // 1.validare date
-    // const parsedBody = exchangeCodeSchema.safeParse(req.body);
-    // if (!parsedBody.success) {
-    //   res.status(400).json({
-    //     error: "Invalid request body",
-    //     details: parsedBody.error.errors,
-    //   });
-    // }
-    // // 2.apelare service cu datele validate
-    // const { authorizationCode, codeVerifier } = req.body;
-    // let response = await loginWithKick(authorizationCode, codeVerifier);
-    // console.log("response ------------------------ ", response);
-    // 3.returnare succes
-    res.status(200).json({});
+      // 2. Apelare service Stripe
+      const stripeUserId = await connectStripeAccount(code);
+
+      // 3. Salvare în pool
+      // await pool.query(
+      //   "UPDATE streamers SET stripe_account_id = $1 WHERE id = $2",
+      //   [stripeUserId, state]
+      // );
+
+      // 4. Returnare succes
+      res.status(200).json({ stripeUserId });
+    }
   } catch (error: any) {
-    // 4.1 returnare eroare api
-    // console.error("❌ Error:", error);
-    // // 4.2 Returnare orice alta eroare
-    // if (error instanceof ApiError) {
-    //   res.status(error.statusCode).json({ error: error.message });
-    // }
+    console.error("❌ Stripe callback error:", error);
     res.status(500).send(error.message);
   }
 };
-// export const oAuthCallback = async (req: Request, res: Response) => {
-//   try {
-//     // 1.validare date
-//     // const parsedBody = exchangeCodeSchema.safeParse(req.body);
-//     // if (!parsedBody.success) {
-//     //   res.status(400).json({
-//     //     error: "Invalid request body",
-//     //     details: parsedBody.error.errors,
-//     //   });
-//     // }
-//     // // 2.apelare service cu datele validate
-//     // const { authorizationCode, codeVerifier } = req.body;
-//     // let response = await loginWithKick(authorizationCode, codeVerifier);
-//     // console.log("response ------------------------ ", response);
-//     // 3.returnare succes
-//     res.status(200).json({});
-//   } catch (error: any) {
-//     // 4.1 returnare eroare api
-//     // console.error("❌ Error:", error);
-//     // // 4.2 Returnare orice alta eroare
-//     // if (error instanceof ApiError) {
-//     //   res.status(error.statusCode).json({ error: error.message });
-//     // }
-//     res.status(500).send(error.message);
-//   }
-// };
