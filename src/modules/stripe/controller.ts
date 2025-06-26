@@ -1,51 +1,56 @@
-// import { Request, Response } from "express";
-// import Stripe from "stripe";
-// import { stripe } from "../../config/stripe";
-// import { saveDonation, updateDonationStatus } from "./service";
+import { Request, Response } from "express";
 
-// export const handleStripeWebhook = async (req: Request, res: Response) => {
-//   const sig = req.headers["stripe-signature"] as string;
-//   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+export const oAuthCallback = async (req: Request, res: Response) => {
+  try {
+    console.log("req.body--------------------", req.body);
 
-//   let event;
-
+    // 1.validare date
+    // const parsedBody = exchangeCodeSchema.safeParse(req.body);
+    // if (!parsedBody.success) {
+    //   res.status(400).json({
+    //     error: "Invalid request body",
+    //     details: parsedBody.error.errors,
+    //   });
+    // }
+    // // 2.apelare service cu datele validate
+    // const { authorizationCode, codeVerifier } = req.body;
+    // let response = await loginWithKick(authorizationCode, codeVerifier);
+    // console.log("response ------------------------ ", response);
+    // 3.returnare succes
+    res.status(200).json({});
+  } catch (error: any) {
+    // 4.1 returnare eroare api
+    // console.error("❌ Error:", error);
+    // // 4.2 Returnare orice alta eroare
+    // if (error instanceof ApiError) {
+    //   res.status(error.statusCode).json({ error: error.message });
+    // }
+    res.status(500).send(error.message);
+  }
+};
+// export const oAuthCallback = async (req: Request, res: Response) => {
 //   try {
-//     event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-//   } catch (err) {
-//     console.error("⚠️ Webhook error:", err);
-//     return res.status(400).send(`Webhook Error: ${err}`);
+//     // 1.validare date
+//     // const parsedBody = exchangeCodeSchema.safeParse(req.body);
+//     // if (!parsedBody.success) {
+//     //   res.status(400).json({
+//     //     error: "Invalid request body",
+//     //     details: parsedBody.error.errors,
+//     //   });
+//     // }
+//     // // 2.apelare service cu datele validate
+//     // const { authorizationCode, codeVerifier } = req.body;
+//     // let response = await loginWithKick(authorizationCode, codeVerifier);
+//     // console.log("response ------------------------ ", response);
+//     // 3.returnare succes
+//     res.status(200).json({});
+//   } catch (error: any) {
+//     // 4.1 returnare eroare api
+//     // console.error("❌ Error:", error);
+//     // // 4.2 Returnare orice alta eroare
+//     // if (error instanceof ApiError) {
+//     //   res.status(error.statusCode).json({ error: error.message });
+//     // }
+//     res.status(500).send(error.message);
 //   }
-
-//   switch (event.type) {
-//     case "checkout.session.completed":
-//       const session = event.data.object;
-//       await handleCompletedSession(session);
-//       break;
-
-//     case "charge.succeeded":
-//       const charge = event.data.object;
-//       await handleSuccessfulCharge(charge);
-//       break;
-//   }
-
-//   res.json({ received: true });
-// };
-
-// // Helper functions
-// const handleCompletedSession = async (session: Stripe.Checkout.Session) => {
-//   if (!session.payment_intent) return;
-
-//   // Salvează donația în DB --------------------------------------------------TODO:------------------------------------
-//   await saveDonation({
-//     amount: session.amount_total ? session.amount_total / 100 : 0,
-//     donor_email: session.customer_email || "unknown",
-//     streamer_id: session.metadata?.streamer_id || "",
-//     stripe_payment_id: session.payment_intent as string,
-//     status: "pending",
-//   });
-// };
-
-// const handleSuccessfulCharge = async (charge: Stripe.Charge) => {
-//   // Actualizează statusul în DB când banii ajung la streamer
-//   await updateDonationStatus(charge.payment_intent as string, "completed");
 // };
