@@ -4,6 +4,6 @@ import { oAuthCallback } from "./controller";
 
 const stripeRouter = express.Router();
 
-stripeRouter.post("/stripe/callback", oAuthCallback);
+stripeRouter.get("/stripe/callback", oAuthCallback);
 
 export default stripeRouter;
