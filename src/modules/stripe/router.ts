@@ -5,6 +5,6 @@ import { stripeCallback, stripeEvents } from "./controller";
 const stripeRouter = express.Router();
 
 stripeRouter.get("/stripe/callback", stripeCallback);
-stripeRouter.get("/stripe/events", stripeEvents);
+stripeRouter.post("/stripe/events", stripeEvents);
 
 export default stripeRouter;
