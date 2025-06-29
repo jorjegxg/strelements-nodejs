@@ -1,5 +1,10 @@
 import { Request, Response } from "express";
-import { connectStripeResponseSchema, stripeCallbackSchema } from "./schema";
+import pool from "../../config/db";
+import {
+  connectStripeResponseSchema,
+  stripeCallbackSchema,
+  stripeConnectionSchema,
+} from "./schema";
 import { connectStripeAccount } from "./service";
 
 export const stripeCallback = async (req: Request, res: Response) => {
@@ -12,7 +17,7 @@ export const stripeCallback = async (req: Request, res: Response) => {
         details: parsedReq.error.errors,
       });
     } else {
-      const { code, state } = parsedReq.data!;
+      const { code, app_user_id } = parsedReq.data!;
 
       // 2. Apelare service Stripe
       const stripeResponse = await connectStripeAccount(code);
@@ -29,13 +34,13 @@ export const stripeCallback = async (req: Request, res: Response) => {
       } else {
         // 3. Salvare în pool
 
-        // await pool.query(
-        //   "insert into stripe_connections(stripe_connect_id ,app_user_id ) values($1,$2);",
-        //   [parsedResponse.data.stripe_user_id, state]
-        // );
+        await pool.query(
+          "insert into stripe_connections(stripe_connect_id ,app_user_id ) values($1,$2)",
+          [parsedResponse.data.stripe_user_id, app_user_id]
+        );
 
         // 4. Returnare succes
-        res.status(200).json({});
+        res.status(200);
       }
     }
   } catch (error: any) {
@@ -67,6 +72,38 @@ export const stripeEvents = async (req: Request, res: Response) => {
 
     // 4. Returnare succes
     res.status(200).json({});
+  } catch (error: any) {
+    console.error("❌ Stripe callback error:", error);
+    res.status(500).send(error.message);
+  }
+};
+export const hasStripeConnection = async (req: Request, res: Response) => {
+  try {
+    // 1. Validare query
+    const parsed = stripeConnectionSchema.safeParse(req.query);
+    if (!parsed.success) {
+      res.status(400).json({
+        error: "Invalid query params",
+        details: parsed.error.errors,
+      });
+    } else {
+      const { app_user_id } = parsed.data!;
+
+      // 2. Salvare în pool
+      const result = await pool.query(
+        "SELECT * FROM STRIPE_CONNECTIONS WHERE APP_USER_ID = $1",
+        [app_user_id]
+      );
+
+      if (result.rows.length > 0) {
+        res.status(200).json({
+          hasConnection: true,
+          stripe_user_id: result.rows[0].stripe_connect_id,
+        });
+      } else {
+        res.status(200).json({ hasConnection: false, stripe_user_id: null });
+      }
+    }
   } catch (error: any) {
     console.error("❌ Stripe callback error:", error);
     res.status(500).send(error.message);
