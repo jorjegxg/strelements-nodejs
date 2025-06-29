@@ -1,11 +1,8 @@
 import axios from "axios";
 import { CONFIG } from "../../config/config";
-import {
-  checkUserExists,
-  createSession,
-  DbUser,
-  insertUserInDb,
-} from "./model";
+import { createConnectionToPlatform } from "../shared/model";
+import { NameOfPlatform } from "../shared/types";
+import { createSession, DbUser, insertUserInDb, userIdIfExists } from "./model";
 import {
   authDataSchema,
   channelSchema,
@@ -227,17 +224,13 @@ const getChannel = async (accessToken: string) => {
 
 async function loginWithKick(authorizationCode: any, codeVerifier: any) {
   let authData = await exchangeAuthCode(authorizationCode, codeVerifier);
-  console.log("1");
-
   const currentUser = await getCurrentUser(authData.access_token);
-  console.log("2 currentUser---------", currentUser);
 
   const userId = await createUserOrSession({
     name: currentUser!.name,
     email: currentUser!.email,
-    kick_id: currentUser!.user_id,
+    kickId: currentUser!.user_id,
   });
-  console.log("3");
 
   let response = {
     kickAuthData: authData,
@@ -249,25 +242,20 @@ async function loginWithKick(authorizationCode: any, codeVerifier: any) {
 
 const createUserOrSession = async (user: DbUser) => {
   try {
-    console.log("2.1");
-    const userExists = await checkUserExists(user.kick_id);
-    console.log("2.2");
-    console.log("userExists---------", userExists);
+    let userId: number | null = await userIdIfExists(user.kickId);
 
-    let userId: number;
-    if (userExists.exists) {
-      console.log("User already exists, creating session");
-      await createSession(userExists.userId);
-      console.log("2.3");
-      userId = userExists.userId;
-    } else {
-      console.log("User does not exist, inserting into DB");
+    if (!userId) {
       userId = await insertUserInDb(user);
-      console.log("2.4");
-      await createSession(userId);
-      console.log("2.5");
-      console.log("User created and session established");
+
+      //create connection to platform (to kick in this case)
+      await createConnectionToPlatform(
+        NameOfPlatform.KICK,
+        userId,
+        user.kickId
+      );
     }
+
+    await createSession(userId);
     return userId;
   } catch (error) {
     console.error("Error creating user or session:", error);

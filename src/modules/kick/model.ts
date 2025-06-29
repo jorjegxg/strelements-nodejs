@@ -3,7 +3,7 @@ import pool from "../../config/db";
 export type DbUser = {
   name: string;
   email: string;
-  kick_id: number;
+  kickId: number;
 };
 
 export type SessionType = {
@@ -11,46 +11,46 @@ export type SessionType = {
   app_user_id: number;
 };
 
-//PAS2: VERIFICA DACA NU EXISTA DEJA IN DB
-const checkUserExists = async (kick_id: number) => {
+/***
+Returneaza UserId ul global (nu kickId)
+***/
+const userIdIfExists = async (platformId: number) => {
   try {
-    const query = `SELECT * FROM APP_USERS WHERE id = $1`;
-    const values = [kick_id];
+    const query = `SELECT * FROM connections_to_platform WHERE platform_user_id = $1`;
+    const values = [platformId];
 
     const result = await pool.query(query, values);
 
-    return {
-      exists: result!.rowCount! > 0,
-      userId: result!.rowCount! > 0 ? result.rows[0].app_user_id : null,
-    };
+    return result!.rowCount! > 0 ? result.rows[0].app_user_id : null;
   } catch (error) {
     console.error("Error checking user:", error);
     throw new Error("Failed to check user");
   }
 };
 
-//PAS3: DACA NU EXISTA, INSEREAZA IN DB
-const insertUserInDb = async (user: DbUser) => {
+/***
+Functia insereaza in app_users userul atat
+***/
+const insertUserInDb = async (user: DbUser): Promise<number> => {
   try {
-    console.log("Mergi:");
+    const { name, email } = user;
 
-    const { name, email, kick_id } = user;
-
-    const query = `INSERT INTO APP_USERS (name, email) VALUES ($1, $2) RETURNING *`;
+    const query = `INSERT INTO APP_USERS (name, email) VALUES ($1, $2) RETURNING id`;
     const values = [name, email];
 
     const result = await pool.query(query, values);
 
-    return result.rows[0].app_user_id;
+    return result.rows[0].id;
   } catch (error) {
     console.error("Error creating user:", error);
     throw new Error("Failed to create user");
   }
 };
+
 //PAS4: DACA EXISTA, FA O SESIUNE NOUA
 const createSession = async (userId: number) => {
   try {
-    const query = `INSERT INTO session (app_user_id) VALUES ($1) RETURNING session_id`;
+    const query = `INSERT INTO sessions (app_user_id) VALUES ($1) RETURNING session_id`;
     const values = [userId];
     const result = await pool.query(query, values);
     const sessionId = result.rows[0].session_id;
@@ -61,4 +61,4 @@ const createSession = async (userId: number) => {
   }
 };
 
-export { checkUserExists, createSession, insertUserInDb };
+export { createSession, insertUserInDb, userIdIfExists };
