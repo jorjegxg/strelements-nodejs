@@ -23,3 +23,22 @@ export const createConnectionToPlatform = async (
     throw new Error("Failed to create user");
   }
 };
+
+/***
+Returneaza UserId ul global (nu kickId)
+***/
+export const userIdIfExists = async (
+  platformId: number
+): Promise<number | null> => {
+  try {
+    const query = `SELECT * FROM connections_to_platform WHERE platform_user_id = $1`;
+    const values = [platformId];
+
+    const result = await pool.query(query, values);
+
+    return result!.rowCount! > 0 ? result.rows[0].app_user_id : null;
+  } catch (error) {
+    console.error("Error checking user:", error);
+    throw new Error("Failed to check user");
+  }
+};

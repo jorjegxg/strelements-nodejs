@@ -1,8 +1,8 @@
 import axios from "axios";
 import { CONFIG } from "../../config/config";
-import { createConnectionToPlatform } from "../shared/model";
+import { createConnectionToPlatform, userIdIfExists } from "../shared/model";
 import { NameOfPlatform } from "../shared/types";
-import { createSession, DbUser, insertUserInDb, userIdIfExists } from "./model";
+import { createSession, insertUserInDb } from "./model";
 import {
   authDataSchema,
   channelSchema,
@@ -40,7 +40,7 @@ const exchangeAuthCode = async (
   }
 };
 
-async function getCurrentUser(authorizationToken: string): Promise<User> {
+async function getKickUser(authorizationToken: string): Promise<User> {
   try {
     const response = await axios.get(CONFIG.KICK_API_URL + "/users", {
       headers: {
@@ -224,44 +224,54 @@ const getChannel = async (accessToken: string) => {
 
 async function loginWithKick(authorizationCode: any, codeVerifier: any) {
   let authData = await exchangeAuthCode(authorizationCode, codeVerifier);
-  const currentUser = await getCurrentUser(authData.access_token);
+  const kickUser = await getKickUser(authData.access_token);
 
-  const userId = await createUserOrSession({
-    name: currentUser!.name,
-    email: currentUser!.email,
-    kickId: currentUser!.user_id,
-  });
+  ////////////////
+  let userId = await userIdIfExists(kickUser.user_id);
+
+  if (!userId) {
+    userId = await insertUserInDb(kickUser.name, kickUser.email);
+    //create connection to kick
+    await createConnectionToPlatform(
+      NameOfPlatform.KICK,
+      userId,
+      kickUser.user_id
+    );
+  }
+
+  await createSession(userId);
+  ////////////////
 
   let response = {
     kickAuthData: authData,
-    kickUser: currentUser,
+    kickUser: kickUser,
     userId,
   };
   return response;
 }
 
-const createUserOrSession = async (user: DbUser) => {
-  try {
-    let userId: number | null = await userIdIfExists(user.kickId);
+// const createUserSessionAndConnection = async (user: DbUser) => {
+//   try {
+//     let userId: number | null = await userIdIfExists(user.kickId);
 
-    if (!userId) {
-      userId = await insertUserInDb(user);
+//     if (!userId) {
+//       userId = await insertUserInDb(user);
 
-      //create connection to platform (to kick in this case)
-      await createConnectionToPlatform(
-        NameOfPlatform.KICK,
-        userId,
-        user.kickId
-      );
-    }
+//       //create connection to platform (to kick in this case)
+//       await createConnectionToPlatform(
+//         NameOfPlatform.KICK,
+//         userId,
+//         user.kickId
+//       );
+//     }
 
-    await createSession(userId);
-    return userId;
-  } catch (error) {
-    console.error("Error creating user or session:", error);
-    throw new Error("Failed to create user or session");
-  }
-};
+//     await createSession(userId);
+//     return userId;
+//   } catch (error) {
+//     console.error("Error creating user or session:", error);
+//     throw new Error("Failed to create user or session");
+//   }
+// };
 export {
   getChannel,
   getSubscriptions,
