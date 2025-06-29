@@ -14,7 +14,7 @@ export type SessionType = {
 //PAS2: VERIFICA DACA NU EXISTA DEJA IN DB
 const checkUserExists = async (kick_id: number) => {
   try {
-    const query = `SELECT * FROM APP_USERS WHERE kick_id = $1`;
+    const query = `SELECT * FROM APP_USERS WHERE id = $1`;
     const values = [kick_id];
 
     const result = await pool.query(query, values);
@@ -36,8 +36,8 @@ const insertUserInDb = async (user: DbUser) => {
 
     const { name, email, kick_id } = user;
 
-    const query = `INSERT INTO APP_USERS (name, email, kick_id) VALUES ($1, $2, $3) RETURNING *`;
-    const values = [name, email, kick_id];
+    const query = `INSERT INTO APP_USERS (name, email) VALUES ($1, $2) RETURNING *`;
+    const values = [name, email];
 
     const result = await pool.query(query, values);
 

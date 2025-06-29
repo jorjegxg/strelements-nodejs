@@ -232,7 +232,7 @@ async function loginWithKick(authorizationCode: any, codeVerifier: any) {
   const currentUser = await getCurrentUser(authData.access_token);
   console.log("2 currentUser---------", currentUser);
 
-  await createUserOrSession({
+  const userId = await createUserOrSession({
     name: currentUser!.name,
     email: currentUser!.email,
     kick_id: currentUser!.user_id,
@@ -240,8 +240,9 @@ async function loginWithKick(authorizationCode: any, codeVerifier: any) {
   console.log("3");
 
   let response = {
-    authData: authData,
-    user: currentUser,
+    kickAuthData: authData,
+    kickUser: currentUser,
+    userId,
   };
   return response;
 }
@@ -253,18 +254,21 @@ const createUserOrSession = async (user: DbUser) => {
     console.log("2.2");
     console.log("userExists---------", userExists);
 
+    let userId: number;
     if (userExists.exists) {
       console.log("User already exists, creating session");
       await createSession(userExists.userId);
       console.log("2.3");
+      userId = userExists.userId;
     } else {
       console.log("User does not exist, inserting into DB");
-      const userId = await insertUserInDb(user);
+      userId = await insertUserInDb(user);
       console.log("2.4");
       await createSession(userId);
       console.log("2.5");
       console.log("User created and session established");
     }
+    return userId;
   } catch (error) {
     console.error("Error creating user or session:", error);
     throw new Error("Failed to create user or session");

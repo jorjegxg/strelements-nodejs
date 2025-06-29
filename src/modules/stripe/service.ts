@@ -7,5 +7,5 @@ export const connectStripeAccount = async (code: string) => {
   });
   console.log("response", response);
 
-  return response.stripe_user_id;
+  return response;
 };
