@@ -3,10 +3,12 @@ import { CONFIG } from "../../config/config";
 import pool from "../../config/db";
 import { stripe } from "../../config/stripe";
 import {
+  checkoutSessionSchema,
   connectStripeResponseSchema,
   stripeCallbackSchema,
   stripeConnectionSchema,
   stripeDisconnectSchema,
+  stripePaymentSchema,
 } from "./schema";
 import { connectStripeAccount } from "./service";
 
@@ -35,10 +37,15 @@ export const stripeCallback = async (req: Request, res: Response) => {
           details: parsedResponse.error.errors,
         });
       } else {
-        // 3. Salvare in db
+        // 3. Salvare in db a conexiunii
         await pool.query(
           "insert into stripe_connections(stripe_connect_id ,app_user_id ) values($1,$2)",
           [parsedResponse.data.stripe_user_id, app_user_id]
+        );
+
+        await createDonationLink(
+          parsedResponse.data.stripe_user_id,
+          app_user_id
         );
 
         // 4. Returnare succes
@@ -129,7 +136,7 @@ export const hasStripeConnection = async (req: Request, res: Response) => {
 
 export const disconnectFromStripe = async (req: Request, res: Response) => {
   try {
-    // 1. Validare BODY (nu query)
+    // 1. Validare BODY
     const parsed = stripeDisconnectSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({
@@ -185,5 +192,83 @@ export const disconnectFromStripe = async (req: Request, res: Response) => {
       error: "Internal server error during Stripe disconnect.",
       details: error.message,
     });
+  }
+};
+const createDonationLink = async (
+  stripe_user_id: string,
+  app_user_id: string
+) => {
+  try {
+    //TODO: completeaza aici
+  } catch (error: any) {
+    console.error("❌ Eroare la crearea linkului Stripe:", error);
+  }
+};
+
+export const stripePayment = async (req: Request, res: Response) => {
+  try {
+    const parsed = stripePaymentSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        error: "Invalid request body",
+        details: parsed.error.errors,
+      });
+      return;
+    }
+
+    const { amount, app_user_id } = parsed.data!;
+    /////////////////////////////////
+    //get connection id
+    const connectionId = await pool.query(
+      "SELECT stripe_connect_id FROM STRIPE_CONNECTIONS WHERE APP_USER_ID = $1",
+      [app_user_id]
+    );
+    if (connectionId.rows.length === 0) {
+      res
+        .status(404)
+        .json({ error: "Stripe connection didn't found for this user." });
+      return;
+    }
+    const connectedId = connectionId.rows[0].stripe_connect_id;
+
+    /////////////////////////////////
+
+    const paymentResponse = await stripe.checkout.sessions.create({
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "Donation",
+            },
+            unit_amount: amount * 100,
+          },
+          quantity: 1,
+        },
+      ],
+      payment_intent_data: {
+        application_fee_amount: 123,
+        transfer_data: {
+          destination: connectedId,
+        },
+      },
+      mode: "payment",
+      success_url: CONFIG.SUCCESS_URL,
+      cancel_url: CONFIG.CANCEL_URL,
+    });
+
+    const paymentParsedResponse =
+      checkoutSessionSchema.safeParse(paymentResponse);
+
+    res.status(200).json(paymentResponse);
+  } catch (error: any) {
+    // 4. Gestionarea erorilor neașteptate
+    console.error("❌ Error checking Stripe connection:", error);
+    res.status(500).json({
+      error:
+        "An internal server error occurred while checking Stripe connection.",
+      details: error.message,
+    });
+    return;
   }
 };
