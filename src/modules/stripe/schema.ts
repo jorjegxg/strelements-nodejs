@@ -7,6 +7,9 @@ export const stripeCallbackSchema = z.object({
 export const stripeConnectionSchema = z.object({
   app_user_id: z.string(),
 });
+export const stripeDisconnectSchema = z.object({
+  app_user_id: z.string(),
+});
 
 export const connectStripeResponseSchema = z.object({
   access_token: z.string(),
