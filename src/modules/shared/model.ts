@@ -5,18 +5,20 @@ import { NameOfPlatform } from "./types";
 export const createConnectionToPlatform = async (
   nameOfPlatform: NameOfPlatform,
   app_user_id: number,
-  platform_user_id: number
+  platform_user_id: number,
+  name: string,
+  email: string
 ) => {
   try {
     //1. get platform id of the platform
-    const query1 = `select * from platforms where NAME = $1`;
+    const query1 = `SELECT * FROM PLATFORMS WHERE NAME = $1`;
     const values1 = [nameOfPlatform];
     let respone = await pool.query(query1, values1);
     let platform_id = respone.rows[0].id;
 
     //2. add user connection
-    const query2 = `INSERT INTO connections_to_platform (app_user_id, platform_id, platform_user_id ) VALUES ($1, $2,$3)`;
-    const values2 = [app_user_id, platform_id, platform_user_id];
+    const query2 = `INSERT INTO connections_to_platform (app_user_id, platform_id, platform_user_id, name, email) VALUES ($1, $2,$3,$4,$5)`;
+    const values2 = [app_user_id, platform_id, platform_user_id, name, email];
     await pool.query(query2, values2);
   } catch (error) {
     console.error("Error creating user:", error);

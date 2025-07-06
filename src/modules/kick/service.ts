@@ -230,12 +230,14 @@ async function loginWithKick(authorizationCode: any, codeVerifier: any) {
   let userId = await userIdIfExists(kickUser.user_id);
 
   if (!userId) {
-    userId = await insertUserInDb(kickUser.name, kickUser.email);
+    userId = await insertUserInDb();
     //create connection to kick
     await createConnectionToPlatform(
       NameOfPlatform.KICK,
       userId,
-      kickUser.user_id
+      kickUser.user_id,
+      kickUser.name,
+      kickUser.email
     );
   }
 

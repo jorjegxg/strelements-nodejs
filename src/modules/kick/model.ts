@@ -14,12 +14,11 @@ export type SessionType = {
 /***
 Functia insereaza in app_users userul atat
 ***/
-const insertUserInDb = async (name: string, email: string): Promise<number> => {
+const insertUserInDb = async (): Promise<number> => {
   try {
-    const query = `INSERT INTO APP_USERS (name, email) VALUES ($1, $2) RETURNING id`;
-    const values = [name, email];
+    const query = `INSERT INTO APP_USERS DEFAULT VALUES RETURNING id`;
 
-    const result = await pool.query(query, values);
+    const result = await pool.query(query);
 
     return result.rows[0].id;
   } catch (error) {
