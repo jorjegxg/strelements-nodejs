@@ -44,6 +44,8 @@ const kickLogin = async (req: Request, res: Response) => {
 
     console.log("response ------------------------ ", response);
 
+    await subscribeToEvents(response.kickAuthData.access_token);
+
     // 3.returnare succes
     res.status(200).json(response);
   } catch (error: any) {
