@@ -94,29 +94,35 @@ export const updateEffectSettings = async (req: Request, res: Response) => {
       });
       return;
     }
-    //check if exists
-    const effect = await pool.query(
-      "SELECT * FROM user_x_effects WHERE app_user_id = $1 AND effect_id = $2",
-      [parsedQuery.data?.app_user_id, parsedQuery.data?.effect_id]
-    );
+    //search effect in db, get id
+
+    const effect = await pool.query("SELECT * FROM effects WHERE name = $1 ", [
+      parsedQuery.data?.effect_name,
+    ]);
 
     if (effect.rows.length === 0) {
+      res.status(400).json({ error: "Effect not found" });
+      return;
+    }
+
+    console.log("effect.rows[0].id", effect.rows[0].id);
+    const effect_id = effect.rows[0].id;
+
+    //check if user has settings for effect
+    const effectSettings = await pool.query(
+      "SELECT * FROM user_x_effects WHERE app_user_id = $1 AND effect_id = $2",
+      [parsedQuery.data?.app_user_id, effect_id]
+    );
+
+    if (effectSettings.rows.length === 0) {
       await pool.query(
         "INSERT INTO user_x_effects (app_user_id, effect_id, settings) VALUES ($1, $2, $3)",
-        [
-          parsedQuery.data?.app_user_id,
-          parsedQuery.data?.effect_id,
-          parsedQuery.data?.settings,
-        ]
+        [parsedQuery.data?.app_user_id, effect_id, parsedQuery.data?.settings]
       );
     } else {
       await pool.query(
         "UPDATE user_x_effects SET settings = $1 WHERE app_user_id = $2 AND effect_id = $3",
-        [
-          parsedQuery.data?.settings,
-          parsedQuery.data?.app_user_id,
-          parsedQuery.data?.effect_id,
-        ]
+        [parsedQuery.data?.settings, parsedQuery.data?.app_user_id, effect_id]
       );
     }
 

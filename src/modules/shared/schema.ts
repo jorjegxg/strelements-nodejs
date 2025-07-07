@@ -11,6 +11,6 @@ export const effectSettingsReqSchema = z.object({
 
 export const updateEffectSettingsSchema = z.object({
   app_user_id: z.number().min(1, "Missing app_user_id"),
-  effect_id: z.number().min(1, "Missing effect_id"),
+  effect_name: z.string().min(1, "Missing effect_name"),
   settings: z.array(z.any()),
 });
