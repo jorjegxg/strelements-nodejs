@@ -6,6 +6,7 @@ import { Server } from "socket.io";
 import corsMiddleware from "./middleware/cors";
 import { requestLogger } from "./middleware/logger";
 import kickRouter from "./modules/kick/router";
+import { sharedRouter } from "./modules/shared/router";
 import stripeRouter from "./modules/stripe/router";
 
 const app = express();
@@ -24,6 +25,7 @@ app.use(requestLogger);
 
 app.use(kickRouter);
 app.use(stripeRouter);
+app.use(sharedRouter);
 
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "Root!" });
