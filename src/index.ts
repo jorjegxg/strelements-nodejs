@@ -1,4 +1,5 @@
-require("dotenv").config();
+import "dotenv/config";
+
 import { CONFIG } from "./config/config";
 import { io, server } from "./server";
 

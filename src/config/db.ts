@@ -1,5 +1,4 @@
-import { CONFIG } from "./config";
-console.log("CONFIG------------------", CONFIG.toString());
+import { Pool } from "pg";
 // const dbConfig = {
 //   user: CONFIG.DB_USER,
 //   password: CONFIG.DB_PASSWORD,
@@ -8,6 +7,10 @@ console.log("CONFIG------------------", CONFIG.toString());
 //   port: Number(CONFIG.DB_PORT),
 // };
 
-const connectionString = CONFIG.DATABASE_URL;
+// const connectionString = CONFIG.DATABASE_URL;
 
-export default connectionString;
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
+export default pool;
